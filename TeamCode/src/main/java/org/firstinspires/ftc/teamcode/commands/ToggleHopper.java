@@ -35,6 +35,11 @@ public class ToggleHopper extends CommandBase {
             case INTAKE_CLOSED:
                 liftSubsystem.setState(LiftSubsystem.states.INTAKE);
                 break;
+            case GRAB_TSE_OPEN_INTAKE_CLOSED:
+                liftSubsystem.setState(LiftSubsystem.states.GRAB_TSE_OPEN_INTAKE_OPEN);
+                break;
+            case GRAB_TSE_CLOSED_INTAKE_CLOSED:
+                liftSubsystem.setState(LiftSubsystem.states.GRAB_TSE_CLOSED_INTAKE_OPEN);
         }
         liftSubsystem.needsToDeregister = true;
     }

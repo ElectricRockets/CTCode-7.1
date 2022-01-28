@@ -96,11 +96,25 @@ public class MecanumUpdater implements TrackUpdater {
         double leftRearTranslationDistance = leftRearDistance - (angleChange * (2 * Math.PI * wheelRadius) * trackWidth * 2);
         leftRearPreviousPosition = leftRearPosition;
 
-        double[] XChanges = {1,3,5,4};
+
+        //this code sets the 2 highest translation values to 0, so we can disregard them in the final calculations
+        double absMaxDist = Math.max(Math.max(Math.max(Math.abs(rightFrontTranslationDistance), Math.abs(leftFrontTranslationDistance)), Math.abs(rightRearTranslationDistance)), Math.abs(leftRearTranslationDistance));
+
+        if (Math.abs(rightFrontTranslationDistance) == absMaxDist) {rightFrontTranslationDistance = 0;}
+        if (Math.abs(rightRearTranslationDistance) == absMaxDist) {rightRearTranslationDistance = 0;}
+        if (Math.abs(leftFrontTranslationDistance) == absMaxDist) {leftFrontTranslationDistance = 0;}
+        if (Math.abs(leftRearTranslationDistance) == absMaxDist) {leftRearTranslationDistance = 0;}
+
+        absMaxDist = Math.max(Math.max(Math.max(Math.abs(rightFrontTranslationDistance), Math.abs(leftFrontTranslationDistance)), Math.abs(rightRearTranslationDistance)), Math.abs(leftRearTranslationDistance));
+
+        if (Math.abs(rightFrontTranslationDistance) == absMaxDist) {rightFrontTranslationDistance = 0;}
+        if (Math.abs(rightRearTranslationDistance) == absMaxDist) {rightRearTranslationDistance = 0;}
+        if (Math.abs(leftFrontTranslationDistance) == absMaxDist) {leftFrontTranslationDistance = 0;}
+        if (Math.abs(leftRearTranslationDistance) == absMaxDist) {leftRearTranslationDistance = 0;}
 
         localChange = new Pose2d(
-                (rightFrontDistance + leftFrontDistance + rightRearDistance + leftRearDistance) * xMultiplier / 4,
-                (-rightFrontDistance + leftFrontDistance + rightRearDistance - leftRearDistance) * yMultiplier / 4,
+                (rightFrontDistance + leftFrontDistance + rightRearDistance + leftRearDistance) * xMultiplier / 2,
+                (-rightFrontDistance + leftFrontDistance + rightRearDistance - leftRearDistance) * yMultiplier / 2,
                 new Rotation2d( angleChange)
         );
     }
