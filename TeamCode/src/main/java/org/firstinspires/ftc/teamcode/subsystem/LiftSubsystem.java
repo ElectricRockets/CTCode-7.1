@@ -95,8 +95,7 @@ public class LiftSubsystem extends SubsystemBase {
         //code to automatically reverse intake when freight is taken in.
         if (smartIntake && ( state == states.INTAKE || state == states.GRAB_TSE_CLOSED_INTAKE_OPEN || state == states.GRAB_TSE_OPEN_INTAKE_OPEN)) {
             //checks to see if freight is detected
-            //detectingFreight = hopperColor.getRawLightDetected() > 200;
-            detectingFreight = false;
+            detectingFreight = (hopperColor.getRawLightDetected() > 170);
 
             //if the freight doesn't need to deregister, either a timer is started, if it is a rising edge, or the lift state is set based off of the current time.
             if (!needsToDeregister) {

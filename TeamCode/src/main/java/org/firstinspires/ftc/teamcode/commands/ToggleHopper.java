@@ -34,9 +34,9 @@ public class ToggleHopper extends CommandBase {
                 break;
             case INTAKE_CLOSED:
                 liftSubsystem.setState(LiftSubsystem.states.INTAKE);
-                liftSubsystem.needsToDeregister = true;
                 break;
         }
+        liftSubsystem.needsToDeregister = true;
     }
 
     public boolean isFinished() {
