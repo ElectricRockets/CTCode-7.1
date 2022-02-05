@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.subsystem;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.arcrobotics.ftclib.command.Robot;
-import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 
@@ -16,13 +15,13 @@ import java.util.function.BooleanSupplier;
 
 public class FFRobot extends Robot{
 
+    public final LynxModuleSubsystem lynxModuleSubsystem;
     public final IntakeSubsystem intakeSubsystem;
     public final LiftSubsystem liftSubsystem;
     public final DuckSubsystem duckSubsystem;
     public final CameraSubsystem cameraSubsystem;
     public final OdometrySubsystem odometrySubsystem;
     public final MecanumDriveSubsystem drive;
-    //public TrackFuser mainLocalizer;
     private final Telemetry telemetry;
     public double startTime = 0;
 
@@ -33,20 +32,16 @@ public class FFRobot extends Robot{
         telemetry.addLine("Robot Initializing");
         telemetry.update();
 
-        //sets lynx modules to do auto bulk reads
-        for (LynxModule module : hardwareMap.getAll(LynxModule.class)) {
-            module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
-        }
-
         //creates all of the subsystems for the robot
+        lynxModuleSubsystem = new LynxModuleSubsystem(hardwareMap, telemetry);
         cameraSubsystem = new CameraSubsystem(hardwareMap, telemetry);
         liftSubsystem = new LiftSubsystem(hardwareMap, telemetry);
         intakeSubsystem = new IntakeSubsystem(hardwareMap, liftSubsystem::intakeAllowed, liftSubsystem::autoExtakeAllowed);
         duckSubsystem = new DuckSubsystem(hardwareMap);
         drive = new MecanumDriveSubsystem(new SampleMecanumDrive(hardwareMap),telemetry, isFieldCentric);
-        odometrySubsystem = new OdometrySubsystem(hardwareMap);
+        odometrySubsystem = new OdometrySubsystem(hardwareMap, drive);
 
-        //drive.setLocalizer(FFRobotLocalizer.get(hardwareMap));
+        //drive.setLocalizer(FFRobotLocalizer.get(hardwareMap, telemetry));
     }
 
     public FFRobot(HardwareMap hardwareMap, Telemetry telemetry) {
@@ -54,15 +49,14 @@ public class FFRobot extends Robot{
     }
 
     public void initTele() {
-        /*if (PoseStorage.currentPose == new Pose2d()) {
+        if (PoseStorage.currentPose.equals(new Pose2d())) {
             PoseStorage.currentPose = new Pose2d(0,0,0);
-        }*/
+        }
         drive.setPoseEstimate(PoseStorage.currentPose);
         intakeSubsystem.setState(IntakeSubsystem.states.RETRACTED);
         //odometrySubsystem.setState(OdometrySubsystem.states.RETRACTED);
         liftSubsystem.setState(LiftSubsystem.states.INTAKE);
         cameraSubsystem.setState(CameraSubsystem.states.STORE);
-
         telemetry.addLine("Robot Ready");
         telemetry.update();
     }

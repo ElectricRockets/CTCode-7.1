@@ -12,7 +12,7 @@ public class BlueConstants {
     public static Pose2d CYCLE_DEPOSIT = new Pose2d(-3.8, 38, toRadians(240));
     public static Pose2d CYCLE_DEPOSIT_REVERSED = new Pose2d(CYCLE_DEPOSIT.vec(), CYCLE_DEPOSIT.getHeading() + toRadians(180));
     public static Pose2d GAP = new Pose2d(24, 64, toRadians(0));
-    public static Pose2d CYCLE_COLLECT = new Pose2d(48, 64, toRadians(0));
+    public static Pose2d CYCLE_COLLECT = new Pose2d(48, 60, toRadians(0));
 
     public static double LEAVING_HUB_OFFSET = 4;
     public static double CYCLE_LIFT_EXTEND_OFFSET = 0.3;

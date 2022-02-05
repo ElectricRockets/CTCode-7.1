@@ -7,6 +7,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.commands.HomeLift;
 import org.firstinspires.ftc.teamcode.commands.IncrementLiftV2;
 import org.firstinspires.ftc.teamcode.commands.MecanumDrive;
 import org.firstinspires.ftc.teamcode.commands.ToggleHopper;
@@ -30,17 +31,13 @@ public class DriverControlBecca extends LinearOpMode {
         robot = new FFRobot(hardwareMap, telemetry);
         robot.initTele();
 
-        Trigger slowMode = new Trigger(() ->
-            mainGamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).get() && robot.liftSubsystem.intakeAllowed() || robot.liftSubsystem.slowDrive()
-        );
-
         //drives the robot
         robot.drive.setDefaultCommand(new MecanumDrive(
                 robot.drive,
                 mainGamepad::getLeftY,
                 mainGamepad::getLeftX,
                 mainGamepad::getRightX,
-                () -> slowMode.get() ? RobotConstants.SLOW_SPEED : RobotConstants.NORMAL_SPEED
+                robot.liftSubsystem::drivePower
         ));
 
         //automatically powers the intake at the specified power using the combination of 2 trigger inputs
@@ -55,6 +52,9 @@ public class DriverControlBecca extends LinearOpMode {
         mainGamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(new IncrementLiftV2(robot.liftSubsystem));
         mainGamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(new ToggleHopper(robot.liftSubsystem));
         mainGamepad.getGamepadButton(GamepadKeys.Button.A).whenPressed(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_SHARED_CLOSED)));
+
+        //rumbles gamepad if hopper just closed
+        //new Trigger(robot.liftSubsystem::autoClosedHopper).whenActive(new RumbleGamepad(mainGamepad));
 
         //automatic delivery of a duck for either playing field side depending on the button pressed
         mainGamepad.getGamepadButton(GamepadKeys.Button.X).whenActive(new ScoreDuck(
@@ -73,8 +73,11 @@ public class DriverControlBecca extends LinearOpMode {
         mainGamepad.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(new ToggleTSEArm(robot.liftSubsystem));
         mainGamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(new ToggleTSEClaw(robot.liftSubsystem));
 
+
+
         //toggles odometry being active
         //mainGamepad.getGamepadButton(GamepadKeys.Button.Y).whenPressed(new ToggleOdometry(robot.odometrySubsystem));
+
     }
 
     public void runOpMode() {
@@ -83,8 +86,11 @@ public class DriverControlBecca extends LinearOpMode {
         waitForStart();
 
         // run the scheduler
+        //robot.schedule(new HomeLift(robot.liftSubsystem));
         while (!isStopRequested() && opModeIsActive()) {
             robot.run();
+            telemetry.addData("pose", robot.drive.drive.getPoseEstimate());
+            telemetry.addData("time", System.nanoTime());
             telemetry.update();
         }
         robot.reset();

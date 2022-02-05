@@ -27,6 +27,7 @@ public class LiftSubsystem extends SubsystemBase {
     private long detectionTime = 0;
     private boolean detectingFreight = false;
     private boolean wasDetectingFreight = false;
+    private boolean closedHopperAutomatically = false;
     private int liftTargetPosition;
     private int liftPosition;
     private final Telemetry telemetry;
@@ -50,7 +51,12 @@ public class LiftSubsystem extends SubsystemBase {
         SCORE_TSE_CLOSED_HOPPER_CLOSED,
         SCORE_TSE_OPEN_HOPPER_CLOSED,
         SCORE_TSE_CLOSED_HOPPER_OPEN,
-        SCORE_TSE_OPEN_HOPPER_OPEN
+        SCORE_TSE_OPEN_HOPPER_OPEN,
+        SCORE_TSE_LOW_OPEN_HOPPER_OPEN,
+        SCORE_TSE_LOW_CLOSED_HOPPER_CLOSED,
+        SCORE_TSE_LOW_OPEN_HOPPER_CLOSED,
+        SCORE_TSE_LOW_CLOSED_HOPPER_OPEN,
+        HOMING
     }
     public states state;
     private final PIDFController liftPIDF;
@@ -73,15 +79,19 @@ public class LiftSubsystem extends SubsystemBase {
         lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lift.setDirection(DcMotorSimple.Direction.REVERSE);
         //liftPIDF =  new PIDFController(lift::getCurrentPosition, this::liftTarget, 0.006,0,-0.0002, 1,() -> 0,() -> 0.005,0,-0.65,0.6);
-        liftPIDF =  new PIDFController(this::getLiftPosition, this::liftTarget, 0.022,0,-0.01, 15,() -> 0,() -> 0.23,0,-0.38,0.9);
+        liftPIDF =  new PIDFController(this::getLiftPosition, this::liftTarget, 0.022,0,-0.01, 15,() -> 0,() -> 0.23,0,-0.38,1);
     }
 
     public void periodic() {
 
         updateLiftPosition();
 
-        //the lift motor is set to a new power based off of the pidf controller.
-        lift.setPower(liftPIDF.getUpdate());
+        if (state != states.HOMING) {
+            //the lift motor is set to a new power based off of the pidf controller.
+            lift.setPower(liftPIDF.getUpdate());
+        } else {
+            lift.setPower(-0.2);
+        }
 
         //code to make sure the TSE arm doesn't get caught on the lift structure
         if (state == states.INTAKE || state == states.INTAKE_CLOSED && tseArm.getPosition() != RobotConstants.TSE_ARM_STORE_FRONT) {
@@ -92,10 +102,12 @@ public class LiftSubsystem extends SubsystemBase {
             }
         }
 
+        closedHopperAutomatically = false;
+
         //code to automatically reverse intake when freight is taken in.
         if (smartIntake && ( state == states.INTAKE || state == states.GRAB_TSE_CLOSED_INTAKE_OPEN || state == states.GRAB_TSE_OPEN_INTAKE_OPEN)) {
             //checks to see if freight is detected
-            detectingFreight = (hopperColor.getRawLightDetected() > 170);
+            detectingFreight = (hopperColor.getRawLightDetected() > RobotConstants.FREIGHT_THRESHOLD);
 
             //if the freight doesn't need to deregister, either a timer is started, if it is a rising edge, or the lift state is set based off of the current time.
             if (!needsToDeregister) {
@@ -103,6 +115,7 @@ public class LiftSubsystem extends SubsystemBase {
                     detectionTime = System.nanoTime();
                 } else if (detectingFreight && System.nanoTime() - detectionTime > RobotConstants.WAIT_AFTER_FREIGHT_REGISTER * Math.pow(10, 9) && state == states.INTAKE) {
                     setState(states.INTAKE_CLOSED);
+                    closedHopperAutomatically = true;
                 }
                 wasDetectingFreight = detectingFreight;
             }
@@ -129,6 +142,7 @@ public class LiftSubsystem extends SubsystemBase {
     public void setState(states newLiftState) {
         state = newLiftState;
         switch (newLiftState) {
+            case HOMING:
             case INTAKE:
                 liftTargetPosition = RobotConstants.LIFT_INTAKE;
                 leftArm.setPosition(RobotConstants.LEFT_ARM_INTAKE);
@@ -308,6 +322,38 @@ public class LiftSubsystem extends SubsystemBase {
                 tseArm.setPosition(RobotConstants.TSE_ARM_SCORE);
                 tseClaw.setPosition(RobotConstants.TSE_CLAW_OPEN);
                 break;
+            case SCORE_TSE_LOW_CLOSED_HOPPER_CLOSED:
+                liftTargetPosition = RobotConstants.LIFT_HIGH;
+                leftArm.setPosition(RobotConstants.LEFT_ARM_SCORE);
+                rightArm.setPosition(RobotConstants.RIGHT_ARM_SCORE);
+                hopperClaw.setPosition(RobotConstants.HOPPER_CLOSED_POSITION);
+                tseArm.setPosition(RobotConstants.TSE_ARM_SCORE_LOW);
+                tseClaw.setPosition(RobotConstants.TSE_CLAW_CLOSED);
+                break;
+            case SCORE_TSE_LOW_OPEN_HOPPER_CLOSED:
+                liftTargetPosition = RobotConstants.LIFT_HIGH;
+                leftArm.setPosition(RobotConstants.LEFT_ARM_SCORE);
+                rightArm.setPosition(RobotConstants.RIGHT_ARM_SCORE);
+                hopperClaw.setPosition(RobotConstants.HOPPER_CLOSED_POSITION);
+                tseArm.setPosition(RobotConstants.TSE_ARM_SCORE_LOW);
+                tseClaw.setPosition(RobotConstants.TSE_CLAW_OPEN);
+                break;
+            case SCORE_TSE_LOW_CLOSED_HOPPER_OPEN:
+                liftTargetPosition = RobotConstants.LIFT_HIGH;
+                leftArm.setPosition(RobotConstants.LEFT_ARM_SCORE);
+                rightArm.setPosition(RobotConstants.RIGHT_ARM_SCORE);
+                hopperClaw.setPosition(RobotConstants.HOPPER_BARELY_OPEN_POSITION);
+                tseArm.setPosition(RobotConstants.TSE_ARM_SCORE_LOW);
+                tseClaw.setPosition(RobotConstants.TSE_CLAW_CLOSED);
+                break;
+            case SCORE_TSE_LOW_OPEN_HOPPER_OPEN:
+                liftTargetPosition = RobotConstants.LIFT_HIGH;
+                leftArm.setPosition(RobotConstants.LEFT_ARM_SCORE);
+                rightArm.setPosition(RobotConstants.RIGHT_ARM_SCORE);
+                hopperClaw.setPosition(RobotConstants.HOPPER_BARELY_OPEN_POSITION);
+                tseArm.setPosition(RobotConstants.TSE_ARM_SCORE_LOW);
+                tseClaw.setPosition(RobotConstants.TSE_CLAW_OPEN);
+                break;
         }
     }
 
@@ -340,25 +386,24 @@ public class LiftSubsystem extends SubsystemBase {
         }
     }
 
-    public boolean slowDrive() {
+    public double drivePower() {
         switch (state) {
-            case GRAB_TSE_CLOSED_INTAKE_OPEN:
-            case GRAB_TSE_OPEN_INTAKE_OPEN:
-            case GRAB_TSE_OPEN_INTAKE_CLOSED:
-            case GRAB_TSE_CLOSED_INTAKE_CLOSED:
-            case SCORE_TSE_OPEN_HOPPER_CLOSED:
-            case SCORE_TSE_CLOSED_HOPPER_CLOSED:
-            case SCORE_TSE_CLOSED_HOPPER_OPEN:
-            case SCORE_TSE_OPEN_HOPPER_OPEN:
-            case SCORE_MID_CLOSED:
+            case INTAKE:
+            case INTAKE_CLOSED:
+            case INTAKE_CLOSED_TSE_HIGH:
+            case INTAKE_TSE_HIGH:
+            case SCORE_LOW_OPEN:
+            case SCORE_LOW_CLOSED:
+                return RobotConstants.NORMAL_SPEED;
             case SCORE_HIGH_CLOSED:
             case SCORE_HIGH_OPEN:
-            case SCORE_MID_OPEN:
             case SCORE_SHARED_CLOSED:
             case SCORE_SHARED_OPEN:
-                return true;
+            case SCORE_MID_CLOSED:
+            case SCORE_MID_OPEN:
+                return RobotConstants.SLOW_SPEED;
             default:
-                return false;
+                return RobotConstants.ULTRA_SLOW_SPEED;
         }
     }
 
@@ -368,6 +413,10 @@ public class LiftSubsystem extends SubsystemBase {
 
     private void updateLiftPosition() {
         liftPosition = lift.getCurrentPosition();
+    }
+
+    public boolean autoClosedHopper() {
+        return closedHopperAutomatically;
     }
 
     private int getLiftPosition() {

@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.constants.RobotConstants;
 
 import java.util.function.BooleanSupplier;
@@ -26,6 +27,7 @@ public class IntakeSubsystem extends SubsystemBase {
         this.autoExtakeAllowed = autoExtakeAllowed;
         intake.setDirection(DcMotorSimple.Direction.REVERSE);
         state = states.RETRACTED;
+        intake.setCurrentAlert(4, CurrentUnit.AMPS);
     }
 
     public void setState(states newState) {
@@ -62,5 +64,9 @@ public class IntakeSubsystem extends SubsystemBase {
         } else {
             ramp.setPosition(RobotConstants.INTAKE_RAMP_LOW);
         }
+    }
+
+    public boolean isStalled() {
+        return intake.isOverCurrent();
     }
 }

@@ -19,17 +19,20 @@ public class RobotConstants {
     public static double TSE_ARM_GRAB = 0.9;
     public static double TSE_ARM_STORE_FRONT = 0.2;
     public static double TSE_ARM_STORE_MID = 0.5;
-    public static double TSE_ARM_SCORE = 0.7;
+    public static double TSE_ARM_SCORE = 0.715;
+    public static double TSE_ARM_SCORE_LOW = 0.78;
     public static double TSE_CLAW_OPEN = 0.5;
     public static double TSE_CLAW_CLOSED = 0.03;
+    public static double SCORE_TSE_DELAY = 0.3;
+    public static double SCORE_TSE_RELEASE_DELAY = 0.15;
 
     public static double BASE_DUCK_POWER = 0.1;
     public static double INSIDE_DELIVERY_TIME = 1.5;
     public static double INSIDE_DELIVERY_ACCEL = 0.7;
     public static double INSIDE_DELIVERY_MAX_SPEED = 1;
-    public static double OUTSIDE_DELIVERY_TIME = 2;
+    public static double OUTSIDE_DELIVERY_TIME = 4;
     public static double OUTSIDE_DELIVERY_ACCEL = 0.3;
-    public static double OUTSIDE_DELIVERY_MAX_SPEED = 0.6;
+    public static double OUTSIDE_DELIVERY_MAX_SPEED = 0.3;
     public static double UNIVERSAL_DELIVERY_TIME = 4;
     public static double UNIVERSAL_DELIVERY_ACCEL = 0.2;
     public static double UNIVERSAL_DELIVERY_MAX_SPEED = 0.3;
@@ -46,14 +49,18 @@ public class RobotConstants {
     public static double CAMERA_STORED = 1;
     public static double CAMERA_TARGETING = 0.8;
 
+    public static double ULTRA_SLOW_SPEED = 0.25;
     public static double SLOW_SPEED = 0.4;
     public static double NORMAL_SPEED = 1;
 
-    public static boolean GENERATE_TELEMETRY = true;
+    public static boolean GENERATE_TELEMETRY = false;
     public static boolean GENERATE_SLOWING_TELEMETRY = false;
 
     public static double WAIT_BETWEEN_MOVEMENTS = 0.5;
     public static double WAIT_AFTER_FREIGHT_REGISTER = 0.3;
+    public static double LEAVING_HUB_DIST_OFFSET = 2;
+    public static double FREIGHT_THRESHOLD = 200;
+    public static int RUMBLE_DURATION = 200;
 
     public static int CAMERA_ISO = 200;
     public static int EXPOSURE_MS = 20;

@@ -86,20 +86,20 @@ public class LocalizationMath {
 
         //creates the perimeter
         addPointToPerimeter(new Vector2d(-1828,-1828));
-        addPointToPerimeter(new Vector2d(-1828 - wallOffsets[1], -609));
-        addPointToPerimeter(new Vector2d(-1828 - wallOffsets[1], 609));
+        addPointToPerimeter(new Vector2d(-1828 - wallOffsets[0], -609));
+        addPointToPerimeter(new Vector2d(-1828 - wallOffsets[0], 609));
 
         addPointToPerimeter(new Vector2d(-1828,1828));
-        addPointToPerimeter(new Vector2d(-609, 1828 + wallOffsets[2]));
-        addPointToPerimeter(new Vector2d(609, 1828 + wallOffsets[2]));
+        addPointToPerimeter(new Vector2d(-609, 1828 + wallOffsets[1]));
+        addPointToPerimeter(new Vector2d(609, 1828 + wallOffsets[1]));
 
         addPointToPerimeter(new Vector2d(1828,1828));
-        addPointToPerimeter(new Vector2d(1828 + wallOffsets[3], 609));
-        addPointToPerimeter(new Vector2d(1828 + wallOffsets[3], -609));
+        addPointToPerimeter(new Vector2d(1828 + wallOffsets[2], 609));
+        addPointToPerimeter(new Vector2d(1828 + wallOffsets[2], -609));
 
         addPointToPerimeter(new Vector2d(1828,-1828));
-        addPointToPerimeter(new Vector2d(609, -1828 - wallOffsets[4]));
-        addPointToPerimeter(new Vector2d(-609, -1828 - wallOffsets[4]));
+        addPointToPerimeter(new Vector2d(609, -1828 - wallOffsets[3]));
+        addPointToPerimeter(new Vector2d(-609, -1828 - wallOffsets[3]));
         finalizePerimeter();
 
         ArrayList<Pose2d> interceptPositions = new ArrayList<>();

@@ -8,6 +8,7 @@ import com.acmerobotics.roadrunner.localization.Localizer;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.arcrobotics.ftclib.geometry.Vector2d;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.SMARTLocalization.CovarianceMatrix;
 import org.firstinspires.ftc.teamcode.SMARTLocalization.LocalizationMath;
 import org.firstinspires.ftc.teamcode.SMARTLocalization.Vector2dEx;
@@ -31,7 +32,10 @@ public class TrackFuser implements Localizer {
     private TrackUpdater[] trackUpdaters;
     private TrackEstimator[] trackEstimators;
 
-    public TrackFuser() {
+    private Telemetry telemetry;
+
+    public TrackFuser(Telemetry telemetry) {
+        this.telemetry = telemetry;
         updateTime = System.nanoTime() * Math.pow(10,-9);
         priorUpdateTime = updateTime - 0.001;
         extraEstimatorTimeLastLoop = 0;
@@ -57,16 +61,16 @@ public class TrackFuser implements Localizer {
     @NonNull
     @Override
     public com.acmerobotics.roadrunner.geometry.Pose2d getPoseEstimate() {
-        return null;
+        return new com.acmerobotics.roadrunner.geometry.Pose2d(robotPoseEstimate.getX(), robotPoseEstimate.getY(), robotPoseEstimate.getHeading());
     }
 
     public Pose2d getFTCLibPoseEstimate() {
-        return null;
+        return robotPoseEstimate;
     }
 
     @Override
     public void setPoseEstimate(@NonNull com.acmerobotics.roadrunner.geometry.Pose2d pose2d) {
-
+        robotPoseEstimate = new Pose2d(pose2d.getX(), pose2d.getY(), new Rotation2d(pose2d.getHeading()));
     }
 
     public void setFTCLibPoseEstimate() {
@@ -86,7 +90,7 @@ public class TrackFuser implements Localizer {
     @Override
     public void update() {
         updateCount++;
-        Pose2d currentVelocity = LocalizationMath.inToMM(LocalizationMath.toFtcLib(getPoseVelocity()));
+        //Pose2d currentVelocity = LocalizationMath.inToMM(LocalizationMath.toFtcLib(getPoseVelocity()));
         priorRobotPoseEstimate = robotPoseEstimate;
         priorUpdateTime = updateTime;
         updateTime = System.nanoTime() * Math.pow(10,-9);
@@ -115,31 +119,36 @@ public class TrackFuser implements Localizer {
         int optimalEstimator = -1;
         double optimalScore = 0;
 
-        for (int i = 0; i < trackEstimators.length; i++) {
-            double withDelayScale = Math.pow((rawLoopTime + trackEstimators[i].getReadTime()) / rawLoopTime, INTEGRATION_ERROR);
-            CovarianceMatrix withDelayCovariance = trackUpdaterCovariance.multiplyBy(new CovarianceMatrix(withDelayScale, withDelayScale, 0));
-            double withoutDelayScale = (rawLoopTime + trackEstimators[i].getReadTime()) / rawLoopTime;
-            CovarianceMatrix withoutDelayCovariance = trackUpdaterCovariance.multiplyBy(new CovarianceMatrix(withoutDelayScale, withoutDelayScale, 0));
+        if (trackEstimators != null) {
+            for (int i = 0; i < trackEstimators.length; i++) {
+                double withDelayScale = Math.pow((rawLoopTime + trackEstimators[i].getReadTime()) / rawLoopTime, INTEGRATION_ERROR);
+                CovarianceMatrix withDelayCovariance = trackUpdaterCovariance.multiplyBy(new CovarianceMatrix(withDelayScale, withDelayScale, 0));
+                double withoutDelayScale = (rawLoopTime + trackEstimators[i].getReadTime()) / rawLoopTime;
+                CovarianceMatrix withoutDelayCovariance = trackUpdaterCovariance.multiplyBy(new CovarianceMatrix(withoutDelayScale, withoutDelayScale, 0));
 
-            CovarianceMatrix robotWithEstimatorCovariance = robotXYCovariance.add(withDelayCovariance);
-            CovarianceMatrix robotWithoutEstimatorCovariance = robotXYCovariance.add(withoutDelayCovariance);
+                CovarianceMatrix robotWithEstimatorCovariance = robotXYCovariance.add(withDelayCovariance);
+                CovarianceMatrix robotWithoutEstimatorCovariance = robotXYCovariance.add(withoutDelayCovariance);
 
-            robotWithEstimatorCovariance = robotWithEstimatorCovariance.combineWith(trackEstimators[i].getTranslationAccuracyEstimate());
+                robotWithEstimatorCovariance = robotWithEstimatorCovariance.combineWith(trackEstimators[i].getTranslationAccuracyEstimate());
 
-            double withEstimatorHeadingVariance = LocalizationMath.getNormalVariance(robotHeadingVariance, trackEstimators[i].getRotationAccuracyEstimate());
+                double withEstimatorHeadingVariance = LocalizationMath.getNormalVariance(robotHeadingVariance, trackEstimators[i].getRotationAccuracyEstimate());
 
-            double scoreWithEstimator = robotWithEstimatorCovariance.determinant() * Math.pow(withEstimatorHeadingVariance,2);
-            double scoreWithoutEstimator = robotWithoutEstimatorCovariance.determinant() * Math.pow(robotHeadingVariance,2);
+                double scoreWithEstimator = robotWithEstimatorCovariance.determinant() * Math.pow(withEstimatorHeadingVariance, 2);
+                double scoreWithoutEstimator = robotWithoutEstimatorCovariance.determinant() * Math.pow(robotHeadingVariance, 2);
 
-            double EstimatorScore = scoreWithEstimator - scoreWithoutEstimator;
+                double EstimatorScore = scoreWithEstimator - scoreWithoutEstimator;
 
-            if (EstimatorScore < optimalScore) {
-                optimalEstimator = i;
-                optimalScore = EstimatorScore;
+                if (!trackEstimators[i].getValidity()) {
+                    EstimatorScore = 0;
+                }
+
+                if (EstimatorScore < optimalScore) {
+                    optimalEstimator = i;
+                    optimalScore = EstimatorScore;
+                }
+
             }
-
         }
-
         //utilizes the optimal sensor to optimize the position estimate
         if (optimalEstimator != -1) {
             trackEstimators[optimalEstimator].update();

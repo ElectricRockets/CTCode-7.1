@@ -5,10 +5,12 @@ import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.arcrobotics.ftclib.geometry.Vector2d;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.SMARTLocalization.CovarianceMatrix;
 import org.firstinspires.ftc.teamcode.SMARTLocalization.LocalizationMath;
 import org.firstinspires.ftc.teamcode.SMARTLocalization.Rev2mSensor;
+import org.firstinspires.ftc.teamcode.constants.RobotConstants;
 import org.firstinspires.ftc.teamcode.localization.base.TrackEstimator;
 
 import java.util.ArrayList;
@@ -16,6 +18,7 @@ import java.util.function.Supplier;
 
 public class DistanceSensorEstimator implements TrackEstimator {
 
+    private final Telemetry telemetry;
     private final Pose2d sensorPose;
     private final DistanceSensor sensor;
     public enum DSTypes {REV2M}
@@ -25,12 +28,14 @@ public class DistanceSensorEstimator implements TrackEstimator {
     private static double[] wallOffsets = new double[] {0,0,0,0};
     private CovarianceMatrix translationAccuracy;
     private Pose2d robotPoseEstimate;
+    private double lastReadTime = 0;
 
     private double estimatedIntersectDistance = -1;
     private double estimatedIntersectAngle = 0;
     private double estimatedCorrectionAngle = 0;
 
-    public DistanceSensorEstimator(Supplier<Pose2d> robotPoseSupplier, Pose2d sensorPose, DSTypes dSType, boolean onChub, DistanceSensor sensor, double[] wallOffsets) {
+    public DistanceSensorEstimator(Telemetry telemetry, Supplier<Pose2d> robotPoseSupplier, Pose2d sensorPose, DSTypes dSType, boolean onChub, DistanceSensor sensor, double[] wallOffsets) {
+        this.telemetry = telemetry;
         this.sensorPose = sensorPose;
         this.sensor = sensor;
         this.dSType = dSType;
@@ -38,20 +43,20 @@ public class DistanceSensorEstimator implements TrackEstimator {
         this.robotPoseSupplier = robotPoseSupplier;
 
         addPointToPerimeter(new Vector2d(-71,-71));
-        addPointToPerimeter(new Vector2d(-71 - wallOffsets[1], -23.6));
-        addPointToPerimeter(new Vector2d(-71 - wallOffsets[1], 23.6));
+        addPointToPerimeter(new Vector2d(-71 - wallOffsets[0], -23.6));
+        addPointToPerimeter(new Vector2d(-71 - wallOffsets[0], 23.6));
 
         addPointToPerimeter(new Vector2d(-71,71));
-        addPointToPerimeter(new Vector2d(-23.6, 71 + wallOffsets[2]));
-        addPointToPerimeter(new Vector2d(23.6, 71 + wallOffsets[2]));
+        addPointToPerimeter(new Vector2d(-23.6, 71 + wallOffsets[1]));
+        addPointToPerimeter(new Vector2d(23.6, 71 + wallOffsets[1]));
 
         addPointToPerimeter(new Vector2d(71,71));
-        addPointToPerimeter(new Vector2d(71 + wallOffsets[3], 23.6));
-        addPointToPerimeter(new Vector2d(71 + wallOffsets[3], -23.6));
+        addPointToPerimeter(new Vector2d(71 + wallOffsets[2], 23.6));
+        addPointToPerimeter(new Vector2d(71 + wallOffsets[2], -23.6));
 
         addPointToPerimeter(new Vector2d(71,-71));
-        addPointToPerimeter(new Vector2d(23.6, -71 - wallOffsets[4]));
-        addPointToPerimeter(new Vector2d(-23.6, -71 - wallOffsets[4]));
+        addPointToPerimeter(new Vector2d(23.6, -71 - wallOffsets[3]));
+        addPointToPerimeter(new Vector2d(-23.6, -71 - wallOffsets[3]));
         finalizePerimeter();
     }
 
@@ -80,8 +85,15 @@ public class DistanceSensorEstimator implements TrackEstimator {
     @Override
     public void update() {
         Pose2d robotPose = robotPoseSupplier.get();
-        Pose2d globalSensorPose = sensorPose.relativeTo(robotPose);
+        Pose2d globalSensorPose = new Pose2d(
+                robotPose.getX() + Math.cos(robotPose.getHeading()) * sensorPose.getX() - Math.sin(robotPose.getHeading()) * sensorPose.getY(),
+                robotPose.getY() + Math.cos(robotPose.getHeading()) * sensorPose.getY() + Math.sin(robotPose.getHeading()) * sensorPose.getX(),
+                new Rotation2d(robotPose.getHeading() + sensorPose.getHeading())
+        );
         calculateIntersectEstimate(globalSensorPose);
+
+        //updates a variable to indicate this is the new most recent time the sensor has been read
+        lastReadTime = System.nanoTime() * Math.pow(10,-9);
 
         //calculates an estimate for the sensor variance in detecting the distance to the wall
         double distanceReading = sensor.getDistance(DistanceUnit.INCH);
@@ -91,6 +103,17 @@ public class DistanceSensorEstimator implements TrackEstimator {
         translationAccuracy = new CovarianceMatrix(correctionVariance, Integer.MAX_VALUE, estimatedCorrectionAngle);
         Pose2d robotPoseEstimateError = new Pose2d( (distanceReading - estimatedIntersectDistance) * Math.sin(estimatedIntersectAngle), 0, new Rotation2d(estimatedCorrectionAngle));
         robotPoseEstimate = robotPoseEstimateError.relativeTo(robotPose);
+
+        if (RobotConstants.GENERATE_TELEMETRY) {
+            telemetry.addData("sensor",sensor.getDeviceName());
+            telemetry.addData("sensorPose", globalSensorPose);
+            telemetry.addData("distance", estimatedIntersectDistance);
+            telemetry.addData("angle", estimatedIntersectAngle);
+            telemetry.addData("correctionAngle", estimatedCorrectionAngle);
+            telemetry.addData("distanceReading", distanceReading);
+            telemetry.addData("robotPoseEstimate", robotPose);
+            telemetry.addData("sensorPoseEstimate", robotPoseEstimate);
+        }
     }
 
     @Override
@@ -101,6 +124,11 @@ public class DistanceSensorEstimator implements TrackEstimator {
     @Override
     public boolean getValidityTranslation() {
         return true;
+    }
+
+    @Override
+    public boolean getValidity() {
+        return (System.nanoTime() * Math.pow(10,-9)) - lastReadTime > 0.035;
     }
 
     public double getVarianceEstimate(double distanceEstimate, double angleEstimate) {

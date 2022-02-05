@@ -70,7 +70,7 @@ public class DuckRed extends LinearOpMode {
         scoreDuck = robot.drive.trajectorySequenceBuilder(leftBarcode.end())
                 .UNSTABLE_addTemporalMarkerOffset(0.5, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.INTAKE_TSE_HIGH))))
                 .splineTo(RedConstants.CAROUSEL.vec(), RedConstants.CAROUSEL.getHeading())
-                .UNSTABLE_addTemporalMarkerOffset(RobotConstants.WAIT_BETWEEN_MOVEMENTS, () -> robot.schedule( new ScoreDuck(robot.duckSubsystem, ScoreDuck.fieldSides.RED, ScoreDuck.scoreTypes.UNIVERSAL)))
+                .UNSTABLE_addTemporalMarkerOffset(RobotConstants.WAIT_BETWEEN_MOVEMENTS, () -> robot.schedule( new ScoreDuck(robot.duckSubsystem, ScoreDuck.fieldSides.RED, ScoreDuck.scoreTypes.OUTSIDE)))
                 .waitSeconds(RobotConstants.UNIVERSAL_DELIVERY_TIME + RobotConstants.WAIT_BETWEEN_MOVEMENTS * 2)
                 .splineTo(RedConstants.DUCKINTAKESTART.vec(), RedConstants.DUCKINTAKESTART.getHeading())
                 .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.intakeSubsystem.setState(IntakeSubsystem.states.SMART_INTAKE))))

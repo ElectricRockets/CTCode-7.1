@@ -2,11 +2,13 @@ package org.firstinspires.ftc.teamcode;
 
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.commands.TrajectorySequenceFollower;
 import org.firstinspires.ftc.teamcode.constants.BlueConstants;
 import org.firstinspires.ftc.teamcode.constants.RobotConstants;
+import org.firstinspires.ftc.teamcode.subsystem.CameraSubsystem;
 import org.firstinspires.ftc.teamcode.subsystem.FFRobot;
 import org.firstinspires.ftc.teamcode.subsystem.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystem.LiftSubsystem;
@@ -66,7 +68,7 @@ public class CycleBlue extends CommandOpMode {
                 .UNSTABLE_addTemporalMarkerOffset(BlueConstants.LEAVING_HUB_OFFSET, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.INTAKE))))
                 .splineTo(BlueConstants.GAP.vec(), BlueConstants.GAP.getHeading())
                 .UNSTABLE_addDisplacementMarkerOffset(BlueConstants.CYCLE_INTAKE_START_OFFSET, () -> robot.schedule(new InstantCommand(() -> robot.intakeSubsystem.setState(IntakeSubsystem.states.SMART_INTAKE))))
-                .splineTo(BlueConstants.CYCLE_COLLECT.vec(), BlueConstants.CYCLE_COLLECT.getHeading())
+                .splineTo(BlueConstants.CYCLE_COLLECT_INITIAL.vec(), BlueConstants.CYCLE_COLLECT_INITIAL.getHeading())
                 .setReversed(true)
                 .splineTo(BlueConstants.GAP.vec(), BlueConstants.GAP.getHeading() + Math.toRadians(180))
                 .UNSTABLE_addTemporalMarkerOffset(BlueConstants.CYCLE_LIFT_EXTEND_OFFSET, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_HIGH_CLOSED))))
@@ -86,10 +88,9 @@ public class CycleBlue extends CommandOpMode {
     @Override
     public void runOpMode() throws InterruptedException{
 
-        //runs robot initialization process
         initialize();
 
-        //displays telemetry to tell if the robot has been initialized
+        //waits until start and displays telemetry
         robot.waitForStart(this::isStarted);
 
         //chooses the correct trajectory based off of the randomization result
@@ -105,28 +106,19 @@ public class CycleBlue extends CommandOpMode {
 
         //stops streaming to reduce computation usage.
         //robot.cameraSubsystem.stopStreaming();
+        robot.cameraSubsystem.setState(CameraSubsystem.states.STORE);
 
-        //schedules the first trajectory of the autonomous program
-        robot.schedule(new TrajectorySequenceFollower( robot.drive, firstSequence));
+        //schedules the trajectories for the full autonomous program in a sequential order
+        robot.schedule(new SequentialCommandGroup(
+                new TrajectorySequenceFollower( robot.drive, firstSequence),
+                new TrajectorySequenceFollower(robot.drive, park)
+        ));
 
         while (!isStopRequested() && opModeIsActive()) {
-
-            //runs the scheduler to iterate through all of the subsystem commands
             robot.run();
-
-            //checks the activity of the robot. If it has finished it's current trajectorySequence, it uses time based logic to determine which trajectory to follow.
-            if (!robot.drive.isBusy()) {
-                double timeRemaining = 30 - robot.timeSinceStart();
-
-                if (timeRemaining > scoreFreight.duration() + park.duration()) {
-                    robot.schedule(new TrajectorySequenceFollower(robot.drive, scoreFreight));
-                } else if (timeRemaining > scoreFreight.duration()) {
-                    robot.schedule(new TrajectorySequenceFollower(robot.drive, scoreFreight));
-                } else {
-                    robot.schedule(new TrajectorySequenceFollower(robot.drive, park));
-                }
-
-            }
+            telemetry.update();
         }
+
+        robot.reset();
     }
 }

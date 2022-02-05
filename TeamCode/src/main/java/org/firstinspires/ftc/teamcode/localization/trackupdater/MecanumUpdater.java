@@ -5,21 +5,19 @@ import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.teamcode.SMARTLocalization.CovarianceMatrix;
 import org.firstinspires.ftc.teamcode.localization.base.TrackUpdater;
-import org.firstinspires.ftc.teamcode.localization.trackestimators.IMUEstimator;
 
-import java.lang.reflect.Array;
-import java.util.Collections;
-import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 public class MecanumUpdater implements TrackUpdater {
 
+    private final Telemetry telemetry;
     private final Supplier<Pose2d> robotPoseSupplier;
     private final BooleanSupplier validity;
     private final DcMotorEx rightFront, leftFront, rightRear, leftRear;
@@ -34,7 +32,8 @@ public class MecanumUpdater implements TrackUpdater {
     private final double yVariance;
     private final double headingVariance;
 
-    public MecanumUpdater(Supplier<Pose2d> robotPoseSupplier, BooleanSupplier validity, DcMotorEx rightFront, DcMotorEx leftFront, DcMotorEx rightRear, DcMotorEx leftRear, BNO055IMU imu, axis rotationAxis, double trackWidth, double wheelRadius, double ticksPerRev, double xMultiplier, double yMultiplier, double xVariance, double yVariance, double headingVariance) {
+    public MecanumUpdater(Telemetry telemetry, Supplier<Pose2d> robotPoseSupplier, BooleanSupplier validity, DcMotorEx rightFront, DcMotorEx leftFront, DcMotorEx rightRear, DcMotorEx leftRear, BNO055IMU imu, axis rotationAxis, double trackWidth, double wheelRadius, double ticksPerRev, double xMultiplier, double yMultiplier, double xVariance, double yVariance, double headingVariance) {
+        this.telemetry = telemetry;
         this.robotPoseSupplier = robotPoseSupplier;
         this.validity = validity;
         this.rightFront = rightFront;
@@ -129,7 +128,7 @@ public class MecanumUpdater implements TrackUpdater {
         return new CovarianceMatrix(
                 xVariance * localChange.getX(),
                 yVariance * localChange.getY(),
-                0
+                robotPoseSupplier.get().getHeading()
         );
     }
 

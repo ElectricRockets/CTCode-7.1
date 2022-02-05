@@ -30,17 +30,13 @@ public class DriverControlDel extends LinearOpMode {
         robot = new FFRobot(hardwareMap, telemetry);
         robot.initTele();
 
-        Trigger slowMode = new Trigger(() ->
-            mainGamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).get() && robot.liftSubsystem.intakeAllowed() || robot.liftSubsystem.slowDrive()
-        );
-
         //drives the robot
         robot.drive.setDefaultCommand(new MecanumDrive(
                 robot.drive,
                 mainGamepad::getLeftY,
                 mainGamepad::getLeftX,
                 mainGamepad::getRightX,
-                () -> slowMode.get() ? RobotConstants.SLOW_SPEED : RobotConstants.NORMAL_SPEED
+                robot.liftSubsystem::drivePower
         ));
 
         //automatically powers the intake at the specified power using the combination of 2 trigger inputs

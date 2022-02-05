@@ -34,4 +34,8 @@ public interface TrackEstimator {
     }
 
     default double getReadTime() {return 8.0;}
+
+    default boolean getValidity() {
+        return true;
+    }
 }

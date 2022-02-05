@@ -4,18 +4,12 @@ import static java.lang.Math.toRadians;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeRedDark;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.io.File;
 import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 public class MeepMeepTesting {
     public static void main(String[] args) throws IOException {
@@ -105,7 +99,7 @@ public class MeepMeepTesting {
                                 //.UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule( new InstantCommand(() -> robot.liftSubsystem.setLiftState(LiftSubsystem.liftStates.GRAB_TSE_CLOSED_INTAKE_CLOSED))))
                                 .waitSeconds(RobotConstants.WAIT_BETWEEN_MOVEMENTS)
                                 //.UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule( new InstantCommand( () -> robot.liftSubsystem.setLiftState(LiftSubsystem.liftStates.SCORE_LOW_CLOSED))))
-                                .turn(BlueConstants.CYCLE_DEPOSIT_REVERSED.getHeading() - BlueConstants.CYCLE_TSERIGHT.getHeading() - toRadians(360))
+                                //.turn(BlueConstants.CYCLE_DEPOSIT_REVERSED.getHeading() - BlueConstants.CYCLE_TSERIGHT.getHeading() - toRadians(360))
                                 .lineToSplineHeading(BlueConstants.CYCLE_DEPOSIT_REVERSED)
                                 //.UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setLiftState(LiftSubsystem.liftStates.SCORE_LOW_OPEN))))
 
@@ -113,9 +107,9 @@ public class MeepMeepTesting {
                                 //.UNSTABLE_addTemporalMarkerOffset(0.5, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setLiftState(LiftSubsystem.liftStates.INTAKE))))
                                 .splineTo(BlueConstants.GAP.vec(), BlueConstants.GAP.getHeading())
                                 //.UNSTABLE_addDisplacementMarkerOffset(6, () -> robot.schedule(new InstantCommand(robot.intakeSubsystem::smartIntake)))
-                                .splineTo(BlueConstants.CYCLE_COLLECT.vec(), BlueConstants.CYCLE_COLLECT.getHeading())
+                                .splineToConstantHeading(BlueConstants.CYCLE_COLLECT.vec(), BlueConstants.CYCLE_COLLECT.getHeading())
                                 .setReversed(true)
-                                .splineTo(BlueConstants.GAP.vec(), BlueConstants.GAP.getHeading() + Math.toRadians(180))
+                                .splineToConstantHeading(BlueConstants.GAP.vec(), BlueConstants.GAP.getHeading() + Math.toRadians(180))
                                 //.UNSTABLE_addTemporalMarkerOffset(0.3, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setLiftState(LiftSubsystem.liftStates.SCORE_HIGH_CLOSED))))
                                 .splineTo(BlueConstants.CYCLE_DEPOSIT.vec(), BlueConstants.CYCLE_DEPOSIT.getHeading())
                                 //.UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setLiftState(LiftSubsystem.liftStates.SCORE_HIGH_OPEN))))
@@ -124,9 +118,9 @@ public class MeepMeepTesting {
                                 //.UNSTABLE_addTemporalMarkerOffset(0.5, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setLiftState(LiftSubsystem.liftStates.INTAKE))))
                                 .splineTo(BlueConstants.GAP.vec(), BlueConstants.GAP.getHeading())
                                 //.UNSTABLE_addDisplacementMarkerOffset(6, () -> robot.schedule(new InstantCommand(robot.intakeSubsystem::smartIntake)))
-                                .splineTo(BlueConstants.CYCLE_COLLECT.vec(), BlueConstants.CYCLE_COLLECT.getHeading())
+                                .splineToConstantHeading(BlueConstants.CYCLE_COLLECT.vec(), BlueConstants.CYCLE_COLLECT.getHeading())
                                 .setReversed(true)
-                                .splineTo(BlueConstants.GAP.vec(), BlueConstants.GAP.getHeading() + Math.toRadians(180))
+                                .splineToConstantHeading(BlueConstants.GAP.vec(), BlueConstants.GAP.getHeading() + Math.toRadians(180))
                                 //.UNSTABLE_addTemporalMarkerOffset(0.3, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setLiftState(LiftSubsystem.liftStates.SCORE_HIGH_CLOSED))))
                                 .splineTo(BlueConstants.CYCLE_DEPOSIT.vec(), BlueConstants.CYCLE_DEPOSIT.getHeading())
                                 //.UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setLiftState(LiftSubsystem.liftStates.SCORE_HIGH_OPEN))))
@@ -175,75 +169,91 @@ public class MeepMeepTesting {
                 );
 
         RoadRunnerBotEntity cycleRed = new DefaultBotBuilder(meepMeep)
-                .setConstraints(65,150, Math.toRadians(360), Math.toRadians(360), 8.48)
+                .setConstraints(55,45, Math.toRadians(360), Math.toRadians(360), 12.6)
+                .setDimensions(11,12.75)
                 .setColorScheme(new ColorSchemeRedDark())
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(RedConstants.CYCLE_START)
 
-                                .setReversed(true)
-                                .splineTo( RedConstants.CYCLE_TSELEFT.vec(), RedConstants.CYCLE_TSELEFT.getHeading()) // Leftmost Barcode
-                                .waitSeconds(0.2)
-                                .splineTo(RedConstants.CYCLE_DEPOSIT.vec(), RedConstants.CYCLE_DEPOSIT.getHeading())
+                                //.UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.GRAB_TSE_OPEN_INTAKE_CLOSED))))
+                                .lineToSplineHeading(RedConstants.CYCLE_TSERIGHT)
+                                //.UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule( new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.GRAB_TSE_CLOSED_INTAKE_CLOSED))))
+                                .waitSeconds(RobotConstants.WAIT_BETWEEN_MOVEMENTS)
+                                //.UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule( new InstantCommand( () -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_HIGH_CLOSED))))
+                                .lineToSplineHeading(RedConstants.CYCLE_DEPOSIT_REVERSED)
+                                //.UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_HIGH_OPEN))))
+                                .waitSeconds(0.5)
 
                                 .setReversed(false)
+                                //.UNSTABLE_addTemporalMarkerOffset(RedConstants.LEAVING_HUB_OFFSET, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.INTAKE))))
                                 .splineTo(RedConstants.GAP.vec(), RedConstants.GAP.getHeading())
-                                .splineTo(RedConstants.CYCLE_COLLECT.vec(), RedConstants.CYCLE_COLLECT.getHeading())
-                                .setReversed(true)
+                                //.UNSTABLE_addDisplacementMarkerOffset(RedConstants.CYCLE_INTAKE_START_OFFSET, () -> robot.schedule(new InstantCommand(() -> robot.intakeSubsystem.setState(IntakeSubsystem.states.SMART_INTAKE))))
+                                .splineTo(RedConstants.GAP_INSIDE.vec(), RedConstants.GAP_INSIDE.getHeading())
+                                .splineToSplineHeading(RedConstants.IW1, 0)
+                                .lineToConstantHeading(RedConstants.IW2.plus(RedConstants.IW2_OFFSET.times(0)))
+                                //.UNSTABLE_addDisplacementMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.INTAKE_CLOSED))))
+                                .setTangent(toRadians(180))
+                                .lineToConstantHeading(RedConstants.IW1.vec())
+                                .splineToSplineHeading(RedConstants.GAP_INSIDE, RedConstants.GAP_INSIDE.getHeading() + toRadians(180))
+                                //.UNSTABLE_addTemporalMarkerOffset(RedConstants.CYCLE_LIFT_EXTEND_OFFSET, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_HIGH_CLOSED))))
                                 .splineTo(RedConstants.GAP.vec(), RedConstants.GAP.getHeading() + toRadians(180))
-                                .splineTo(RedConstants.CYCLE_DEPOSIT.vec(), RedConstants.CYCLE_DEPOSIT.getHeading())
+                                .splineTo(RedConstants.CYCLE_DEPOSIT.vec().plus(RedConstants.DEPOSIT_VARIANCE.times(1)), RedConstants.CYCLE_DEPOSIT.getHeading())
+                                //.UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_HIGH_OPEN))))
 
                                 .setReversed(false)
+                                //.UNSTABLE_addTemporalMarkerOffset(RedConstants.LEAVING_HUB_OFFSET, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.INTAKE))))
                                 .splineTo(RedConstants.GAP.vec(), RedConstants.GAP.getHeading())
-                                .splineTo(RedConstants.CYCLE_COLLECT.vec(), RedConstants.CYCLE_COLLECT.getHeading())
-                                .setReversed(true)
+                                //.UNSTABLE_addDisplacementMarkerOffset(RedConstants.CYCLE_INTAKE_START_OFFSET, () -> robot.schedule(new InstantCommand(() -> robot.intakeSubsystem.setState(IntakeSubsystem.states.SMART_INTAKE))))
+                                .splineTo(RedConstants.GAP_INSIDE.vec(), RedConstants.GAP_INSIDE.getHeading())
+                                .splineToSplineHeading(RedConstants.IW1, 0)
+                                .lineToConstantHeading(RedConstants.IW2.plus(RedConstants.IW2_OFFSET.times(1)))
+                                //.UNSTABLE_addDisplacementMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.INTAKE_CLOSED))))
+                                .setTangent(toRadians(180))
+                                .lineToConstantHeading(RedConstants.IW1.vec())
+                                .splineToSplineHeading(RedConstants.GAP_INSIDE, RedConstants.GAP_INSIDE.getHeading() + toRadians(180))
+                                //.UNSTABLE_addTemporalMarkerOffset(RedConstants.CYCLE_LIFT_EXTEND_OFFSET, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_HIGH_CLOSED))))
                                 .splineTo(RedConstants.GAP.vec(), RedConstants.GAP.getHeading() + toRadians(180))
-                                .splineTo(RedConstants.CYCLE_DEPOSIT.vec(), RedConstants.CYCLE_DEPOSIT.getHeading())
+                                .splineTo(RedConstants.CYCLE_DEPOSIT.vec().plus(RedConstants.DEPOSIT_VARIANCE.times(-1)), RedConstants.CYCLE_DEPOSIT.getHeading())
+                                //.UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_HIGH_OPEN))))
 
                                 .setReversed(false)
+                                //.UNSTABLE_addTemporalMarkerOffset(RedConstants.LEAVING_HUB_OFFSET, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.INTAKE))))
                                 .splineTo(RedConstants.GAP.vec(), RedConstants.GAP.getHeading())
-                                .splineTo(RedConstants.CYCLE_COLLECT.vec(), RedConstants.CYCLE_COLLECT.getHeading())
-                                .setReversed(true)
+                                //.UNSTABLE_addDisplacementMarkerOffset(RedConstants.CYCLE_INTAKE_START_OFFSET, () -> robot.schedule(new InstantCommand(() -> robot.intakeSubsystem.setState(IntakeSubsystem.states.SMART_INTAKE))))
+                                .splineTo(RedConstants.GAP_INSIDE.vec(), RedConstants.GAP_INSIDE.getHeading())
+                                .splineToSplineHeading(RedConstants.IW1, 0)
+                                .lineToConstantHeading(RedConstants.IW2.plus(RedConstants.IW2_OFFSET.times(2)))
+                                //.UNSTABLE_addDisplacementMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.INTAKE_CLOSED))))
+                                .setTangent(toRadians(180))
+                                .lineToConstantHeading(RedConstants.IW1.vec())
+                                .splineToSplineHeading(RedConstants.GAP_INSIDE, RedConstants.GAP_INSIDE.getHeading() + toRadians(180))
+                                //.UNSTABLE_addTemporalMarkerOffset(RedConstants.CYCLE_LIFT_EXTEND_OFFSET, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_HIGH_CLOSED))))
                                 .splineTo(RedConstants.GAP.vec(), RedConstants.GAP.getHeading() + toRadians(180))
-                                .splineTo(RedConstants.CYCLE_DEPOSIT.vec(), RedConstants.CYCLE_DEPOSIT.getHeading())
+                                .splineTo(RedConstants.CYCLE_DEPOSIT.vec().plus(RedConstants.DEPOSIT_VARIANCE.times(1)), RedConstants.CYCLE_DEPOSIT.getHeading())
+                                //.UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_HIGH_OPEN))))
 
                                 .setReversed(false)
+                                //.UNSTABLE_addTemporalMarkerOffset(RedConstants.LEAVING_HUB_OFFSET, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.INTAKE))))
                                 .splineTo(RedConstants.GAP.vec(), RedConstants.GAP.getHeading())
-                                .splineTo(RedConstants.CYCLE_COLLECT.vec(), RedConstants.CYCLE_COLLECT.getHeading())
-                                .setReversed(true)
+                                //.UNSTABLE_addDisplacementMarkerOffset(RedConstants.CYCLE_INTAKE_START_OFFSET, () -> robot.schedule(new InstantCommand(() -> robot.intakeSubsystem.setState(IntakeSubsystem.states.SMART_INTAKE))))
+                                .splineTo(RedConstants.GAP_INSIDE.vec(), RedConstants.GAP_INSIDE.getHeading())
+                                .splineToSplineHeading(RedConstants.IW1, 0)
+                                .lineToConstantHeading(RedConstants.IW2.plus(RedConstants.IW2_OFFSET.times(3)))
+                                //.UNSTABLE_addDisplacementMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.INTAKE_CLOSED))))
+                                .setTangent(toRadians(180))
+                                .lineToConstantHeading(RedConstants.IW1.vec())
+                                .splineToSplineHeading(RedConstants.GAP_INSIDE, RedConstants.GAP_INSIDE.getHeading() + toRadians(180))
+                                //.UNSTABLE_addTemporalMarkerOffset(RedConstants.CYCLE_LIFT_EXTEND_OFFSET, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_HIGH_CLOSED))))
                                 .splineTo(RedConstants.GAP.vec(), RedConstants.GAP.getHeading() + toRadians(180))
-                                .splineTo(RedConstants.CYCLE_DEPOSIT.vec(), RedConstants.CYCLE_DEPOSIT.getHeading())
+                                .splineTo(RedConstants.CYCLE_DEPOSIT.vec().plus(RedConstants.DEPOSIT_VARIANCE.times(-1)), RedConstants.CYCLE_DEPOSIT.getHeading())
+                                //.UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_HIGH_OPEN))))
 
                                 .setReversed(false)
-                                .splineTo(RedConstants.GAP.vec(), RedConstants.GAP.getHeading())
-                                .splineTo(RedConstants.CYCLE_COLLECT.vec(), RedConstants.CYCLE_COLLECT.getHeading())
-                                .setReversed(true)
-                                .splineTo(RedConstants.GAP.vec(), RedConstants.GAP.getHeading() + toRadians(180))
-                                .splineTo(RedConstants.CYCLE_DEPOSIT.vec(), RedConstants.CYCLE_DEPOSIT.getHeading())
-
-                                .setReversed(false)
-                                .splineTo(RedConstants.GAP.vec(), RedConstants.GAP.getHeading())
-                                .splineTo(RedConstants.CYCLE_COLLECT.vec(), RedConstants.CYCLE_COLLECT.getHeading())
-                                .setReversed(true)
-                                .splineTo(RedConstants.GAP.vec(), RedConstants.GAP.getHeading() + toRadians(180))
-                                .splineTo(RedConstants.CYCLE_DEPOSIT.vec(), RedConstants.CYCLE_DEPOSIT.getHeading())
-
-                                .setReversed(false)
-                                .splineTo(RedConstants.GAP.vec(), RedConstants.GAP.getHeading())
-                                .splineTo(RedConstants.CYCLE_COLLECT.vec(), RedConstants.CYCLE_COLLECT.getHeading())
-                                .setReversed(true)
-                                .splineTo(RedConstants.GAP.vec(), RedConstants.GAP.getHeading() + toRadians(180))
-                                .splineTo(RedConstants.CYCLE_DEPOSIT.vec(), RedConstants.CYCLE_DEPOSIT.getHeading())
-
-                                .setReversed(false)
-                                .splineTo(RedConstants.GAP.vec(), RedConstants.GAP.getHeading())
-                                .splineTo(RedConstants.CYCLE_COLLECT.vec(), RedConstants.CYCLE_COLLECT.getHeading())
-                                .setReversed(true)
-                                .splineTo(RedConstants.GAP.vec(), RedConstants.GAP.getHeading() + toRadians(180))
-                                .splineTo(RedConstants.CYCLE_DEPOSIT.vec(), RedConstants.CYCLE_DEPOSIT.getHeading())
-
-                                .setReversed(false)
+                                //.UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.intakeSubsystem.setState(IntakeSubsystem.states.RETRACTED))))
+                                //.UNSTABLE_addTemporalMarkerOffset(RedConstants.LEAVING_HUB_OFFSET, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.INTAKE))))
                                 .splineTo(RedConstants.GAP.vec(), RedConstants.GAP.getHeading())
                                 .splineTo(RedConstants.WAREHOUSE_PARK.vec(), RedConstants.WAREHOUSE_PARK.getHeading())
+
                                 .build()
                 );
 
@@ -251,10 +261,10 @@ public class MeepMeepTesting {
                 .setBackground(MeepMeep.Background.FIELD_FREIGHTFRENZY_OFFICIAL)
                 .setTheme(new ColorSchemeRedDark())
                 .setBackgroundAlpha(0.95f)
-                .addEntity(duckBlue2)
-                .addEntity(cycleBlue)
-                .addEntity(duckRed)
-                //.addEntity(cycleRed)
+                //.addEntity(duckBlue2)
+                //.addEntity(cycleBlue)
+                //.addEntity(duckRed)
+                .addEntity(cycleRed)
                 .start();
     }
 }
