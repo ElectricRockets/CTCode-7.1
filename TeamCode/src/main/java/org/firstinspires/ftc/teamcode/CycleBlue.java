@@ -6,7 +6,9 @@ import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.commands.TrajectorySequenceFollower;
+import org.firstinspires.ftc.teamcode.constants.AutoTrajectories;
 import org.firstinspires.ftc.teamcode.constants.BlueConstants;
+import org.firstinspires.ftc.teamcode.constants.RedConstants;
 import org.firstinspires.ftc.teamcode.constants.RobotConstants;
 import org.firstinspires.ftc.teamcode.subsystem.CameraSubsystem;
 import org.firstinspires.ftc.teamcode.subsystem.FFRobot;
@@ -24,7 +26,10 @@ public class CycleBlue extends CommandOpMode {
     private TrajectorySequence leftBarcode;
     private TrajectorySequence midBarcode;
     private TrajectorySequence rightBarcode;
-    private TrajectorySequence scoreFreight;
+    private TrajectorySequence scoreFreight1;
+    private TrajectorySequence scoreFreight2;
+    private TrajectorySequence scoreFreight3;
+    private TrajectorySequence scoreFreight4;
     private TrajectorySequence park;
 
 
@@ -33,56 +38,18 @@ public class CycleBlue extends CommandOpMode {
         robot = new FFRobot(hardwareMap, telemetry);
         robot.initAuto(BlueConstants.CYCLE_START);
 
+
         //generates all the trajectories that could be needed in order to reduce on-the-fly computation.
-        leftBarcode = robot.drive.trajectorySequenceBuilder(BlueConstants.CYCLE_START)
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.GRAB_TSE_OPEN_INTAKE_CLOSED))))
-                .lineToSplineHeading(BlueConstants.CYCLE_TSELEFT)
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule( new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.GRAB_TSE_CLOSED_INTAKE_CLOSED))))
-                .waitSeconds(RobotConstants.WAIT_BETWEEN_MOVEMENTS)
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule( new InstantCommand( () -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_LOW_CLOSED))))
-                .lineToSplineHeading(BlueConstants.CYCLE_DEPOSIT_REVERSED)
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_LOW_OPEN))))
-                .build();
+        leftBarcode = AutoTrajectories.startToHub(robot, BlueConstants.CYCLE_START, BlueConstants.CYCLE_TSELEFT, BlueConstants.CYCLE_DEPOSIT_REVERSED);
+        midBarcode = AutoTrajectories.startToHub(robot, BlueConstants.CYCLE_START, BlueConstants.CYCLE_TSEMID, BlueConstants.CYCLE_DEPOSIT_REVERSED);
+        rightBarcode = AutoTrajectories.startToHub(robot, BlueConstants.CYCLE_START, BlueConstants.CYCLE_TSERIGHT, BlueConstants.CYCLE_DEPOSIT_REVERSED);
 
-        midBarcode = robot.drive.trajectorySequenceBuilder(BlueConstants.CYCLE_START)
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.GRAB_TSE_OPEN_INTAKE_CLOSED))))
-                .lineToSplineHeading(BlueConstants.CYCLE_TSEMID)
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule( new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.GRAB_TSE_CLOSED_INTAKE_CLOSED))))
-                .waitSeconds(RobotConstants.WAIT_BETWEEN_MOVEMENTS)
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule( new InstantCommand( () -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_MID_CLOSED))))
-                .lineToSplineHeading(BlueConstants.CYCLE_DEPOSIT_REVERSED)
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_MID_OPEN))))
-                .build();
+        scoreFreight1 = AutoTrajectories.cycle(robot, leftBarcode.end(), BlueConstants.GAP, BlueConstants.GAP_INSIDE, BlueConstants.IW1, BlueConstants.IW2, BlueConstants.IW2_OFFSET,0,1, BlueConstants.CYCLE_DEPOSIT, BlueConstants.DEPOSIT_VARIANCE);
+        scoreFreight2 = AutoTrajectories.cycle(robot, scoreFreight1.end(), BlueConstants.GAP, BlueConstants.GAP_INSIDE, BlueConstants.IW1, BlueConstants.IW2, BlueConstants.IW2_OFFSET,1,-1, BlueConstants.CYCLE_DEPOSIT, BlueConstants.DEPOSIT_VARIANCE);
+        scoreFreight3 = AutoTrajectories.cycle(robot, scoreFreight2.end(), BlueConstants.GAP, BlueConstants.GAP_INSIDE, BlueConstants.IW1, BlueConstants.IW2, BlueConstants.IW2_OFFSET,2,1, BlueConstants.CYCLE_DEPOSIT, BlueConstants.DEPOSIT_VARIANCE);
+        scoreFreight4 = AutoTrajectories.cycle(robot, scoreFreight3.end(), BlueConstants.GAP, BlueConstants.GAP_INSIDE, BlueConstants.IW1, BlueConstants.IW2, BlueConstants.IW2_OFFSET,3,-1, BlueConstants.CYCLE_DEPOSIT, BlueConstants.DEPOSIT_VARIANCE);
 
-        rightBarcode = robot.drive.trajectorySequenceBuilder(BlueConstants.CYCLE_START)
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.GRAB_TSE_OPEN_INTAKE_CLOSED))))
-                .lineToSplineHeading(BlueConstants.CYCLE_TSERIGHT)
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule( new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.GRAB_TSE_CLOSED_INTAKE_CLOSED))))
-                .waitSeconds(RobotConstants.WAIT_BETWEEN_MOVEMENTS)
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule( new InstantCommand( () -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_HIGH_CLOSED))))
-                .lineToSplineHeading(BlueConstants.CYCLE_DEPOSIT_REVERSED)
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_HIGH_OPEN))))
-                .build();
-
-        scoreFreight = robot.drive.trajectorySequenceBuilder(leftBarcode.end())
-                .UNSTABLE_addTemporalMarkerOffset(BlueConstants.LEAVING_HUB_OFFSET, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.INTAKE))))
-                .splineTo(BlueConstants.GAP.vec(), BlueConstants.GAP.getHeading())
-                .UNSTABLE_addDisplacementMarkerOffset(BlueConstants.CYCLE_INTAKE_START_OFFSET, () -> robot.schedule(new InstantCommand(() -> robot.intakeSubsystem.setState(IntakeSubsystem.states.SMART_INTAKE))))
-                .splineTo(BlueConstants.CYCLE_COLLECT_INITIAL.vec(), BlueConstants.CYCLE_COLLECT_INITIAL.getHeading())
-                .setReversed(true)
-                .splineTo(BlueConstants.GAP.vec(), BlueConstants.GAP.getHeading() + Math.toRadians(180))
-                .UNSTABLE_addTemporalMarkerOffset(BlueConstants.CYCLE_LIFT_EXTEND_OFFSET, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_HIGH_CLOSED))))
-                .splineTo(BlueConstants.CYCLE_DEPOSIT.vec(), BlueConstants.CYCLE_DEPOSIT.getHeading())
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_HIGH_OPEN))))
-                .waitSeconds(RobotConstants.WAIT_BETWEEN_MOVEMENTS)
-                .build();
-
-        park = robot.drive.trajectorySequenceBuilder(scoreFreight.end())
-                .setReversed(false)
-                .UNSTABLE_addTemporalMarkerOffset(BlueConstants.LEAVING_HUB_OFFSET, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.INTAKE))))
-                .splineTo(BlueConstants.GAP.vec(), BlueConstants.GAP.getHeading())
-                .splineTo(BlueConstants.WAREHOUSE_PARK.vec(), BlueConstants.WAREHOUSE_PARK.getHeading())
-                .build();
+        park = AutoTrajectories.warehousePark(robot, scoreFreight4.end(), BlueConstants.GAP, BlueConstants.GAP_INSIDE, BlueConstants.WAREHOUSE_PARK);
     }
 
     @Override
@@ -116,7 +83,6 @@ public class CycleBlue extends CommandOpMode {
 
         while (!isStopRequested() && opModeIsActive()) {
             robot.run();
-            telemetry.update();
         }
 
         robot.reset();

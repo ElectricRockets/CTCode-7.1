@@ -261,9 +261,9 @@ public class MeepMeepTesting {
                 .setBackground(MeepMeep.Background.FIELD_FREIGHTFRENZY_OFFICIAL)
                 .setTheme(new ColorSchemeRedDark())
                 .setBackgroundAlpha(0.95f)
-                //.addEntity(duckBlue2)
+                .addEntity(duckBlue2)
                 //.addEntity(cycleBlue)
-                //.addEntity(duckRed)
+                .addEntity(duckRed)
                 .addEntity(cycleRed)
                 .start();
     }

@@ -12,16 +12,12 @@ public class RedConstants {
     public static Pose2d CYCLE_DEPOSIT = new Pose2d(-5, -37, toRadians(120));
     public static Vector2d DEPOSIT_VARIANCE = new Vector2d(2,2);
     public static Pose2d CYCLE_DEPOSIT_REVERSED = new Pose2d(CYCLE_DEPOSIT.vec(), CYCLE_DEPOSIT.getHeading() + toRadians(180));
-    public static Pose2d GAP = new Pose2d(25, -64, toRadians(0));
+    public static Pose2d GAP = new Pose2d(25, -64.5, toRadians(0));
     public static Pose2d GAP_INSIDE = new Pose2d(GAP.getX() + 6, GAP.getY(), GAP.getHeading());
 
-    public static Pose2d IW1 = new Pose2d(42, -62, toRadians(-35));
+    public static Pose2d IW1 = new Pose2d(42, -62.5, toRadians(-35));
     public static Vector2d IW2 = new Vector2d(IW1.getX() + 4, IW1.getY());
     public static Vector2d IW2_OFFSET = new Vector2d(2.5,0);
-
-    public static double LEAVING_HUB_OFFSET = 0.3;
-    public static double CYCLE_LIFT_EXTEND_OFFSET = 0;
-    public static double CYCLE_INTAKE_START_OFFSET = 6;
 
     public static Pose2d CYCLE_TSELEFT = new Pose2d(15, -43.5, toRadians(139) + toRadians(180));
     public static Pose2d CYCLE_TSEMID = new Pose2d(13, -47.5, toRadians(90) + toRadians(180));
@@ -40,5 +36,4 @@ public class RedConstants {
     public static Pose2d DUCKINTAKESTART = new Pose2d(-45,-60, toRadians(-120));
 
     public static Pose2d DEPOT_PARK = new Pose2d(-60, -36, toRadians(180));
-
 }

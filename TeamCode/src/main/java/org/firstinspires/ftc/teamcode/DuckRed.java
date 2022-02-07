@@ -119,7 +119,6 @@ public class DuckRed extends LinearOpMode {
 
         while (!isStopRequested() && opModeIsActive()) {
             robot.run();
-            telemetry.update();
         }
 
         robot.reset();

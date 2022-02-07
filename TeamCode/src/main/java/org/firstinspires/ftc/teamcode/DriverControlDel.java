@@ -81,7 +81,6 @@ public class DriverControlDel extends LinearOpMode {
         // run the scheduler
         while (!isStopRequested() && opModeIsActive()) {
             robot.run();
-            telemetry.update();
         }
         robot.reset();
     }

@@ -30,7 +30,7 @@ public class AutoTrajectories {
                 .setReversed(false)
                 .UNSTABLE_addDisplacementMarkerOffset(RobotConstants.LEAVING_HUB_DIST_OFFSET, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.INTAKE))))
                 .splineTo(gapOutside.vec(), gapOutside.getHeading())
-                .UNSTABLE_addDisplacementMarkerOffset(RedConstants.CYCLE_INTAKE_START_OFFSET, () -> robot.schedule(new InstantCommand(() -> robot.intakeSubsystem.setState(IntakeSubsystem.states.SMART_INTAKE))))
+                .UNSTABLE_addDisplacementMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.intakeSubsystem.setState(IntakeSubsystem.states.SMART_INTAKE))))
                 .splineTo(gapInside.vec(), gapInside.getHeading())
                 .splineToSplineHeading(IW1, 0)
                 .lineToConstantHeading(IW2.plus(collectOffset.times(collectMultiplier)))

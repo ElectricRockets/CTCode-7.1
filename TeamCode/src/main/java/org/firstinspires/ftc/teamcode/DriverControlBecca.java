@@ -91,7 +91,6 @@ public class DriverControlBecca extends LinearOpMode {
             robot.run();
             telemetry.addData("pose", robot.drive.drive.getPoseEstimate());
             telemetry.addData("time", System.nanoTime());
-            telemetry.update();
         }
         robot.reset();
     }

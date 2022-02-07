@@ -119,7 +119,6 @@ public class DuckBlue extends LinearOpMode {
 
         while (!isStopRequested() && opModeIsActive()) {
             robot.run();
-            telemetry.update();
         }
 
         robot.reset();

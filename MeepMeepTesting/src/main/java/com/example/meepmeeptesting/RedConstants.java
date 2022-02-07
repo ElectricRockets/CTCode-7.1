@@ -11,10 +11,10 @@ public class RedConstants {
     public static Pose2d CYCLE_DEPOSIT = new Pose2d(-5, -37, toRadians(120));
     public static Vector2d DEPOSIT_VARIANCE = new Vector2d(2,2);
     public static Pose2d CYCLE_DEPOSIT_REVERSED = new Pose2d(CYCLE_DEPOSIT.vec(), CYCLE_DEPOSIT.getHeading() + toRadians(180));
-    public static Pose2d GAP = new Pose2d(25, -64, toRadians(0));
+    public static Pose2d GAP = new Pose2d(25, -64.5, toRadians(0));
     public static Pose2d GAP_INSIDE = new Pose2d(GAP.getX() + 5, GAP.getY(), GAP.getHeading());
 
-    public static Pose2d IW1 = new Pose2d(44, -63, toRadians(-30));
+    public static Pose2d IW1 = new Pose2d(44, -62.5, toRadians(-30));
     public static Vector2d IW2 = new Vector2d(IW1.getX() + 2, IW1.getY());
     public static Vector2d IW2_OFFSET = new Vector2d(2.5,0);
 
