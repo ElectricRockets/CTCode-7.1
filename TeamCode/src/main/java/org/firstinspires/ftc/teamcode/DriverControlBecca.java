@@ -1,13 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.arcrobotics.ftclib.command.InstantCommand;
-import com.arcrobotics.ftclib.command.button.Trigger;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.commands.HomeLift;
 import org.firstinspires.ftc.teamcode.commands.IncrementLiftV2;
 import org.firstinspires.ftc.teamcode.commands.MecanumDrive;
 import org.firstinspires.ftc.teamcode.commands.ToggleHopper;
@@ -15,14 +13,12 @@ import org.firstinspires.ftc.teamcode.commands.ScoreDuck;
 import org.firstinspires.ftc.teamcode.commands.SetSmartIntakePower;
 import org.firstinspires.ftc.teamcode.commands.ToggleTSEArm;
 import org.firstinspires.ftc.teamcode.commands.ToggleTSEClaw;
-import org.firstinspires.ftc.teamcode.constants.RobotConstants;
 import org.firstinspires.ftc.teamcode.subsystem.FFRobot;
 import org.firstinspires.ftc.teamcode.subsystem.LiftSubsystem;
 
 @TeleOp
 public class DriverControlBecca extends LinearOpMode {
 
-    private double lastLoopTime = System.nanoTime() * Math.pow(10, -6);
     private GamepadEx mainGamepad;
     FFRobot robot;
 
@@ -86,12 +82,10 @@ public class DriverControlBecca extends LinearOpMode {
         waitForStart();
 
         // run the scheduler
-        //robot.schedule(new HomeLift(robot.liftSubsystem));
         while (!isStopRequested() && opModeIsActive()) {
             robot.run();
-            telemetry.addData("pose", robot.drive.drive.getPoseEstimate());
-            telemetry.addData("time", System.nanoTime());
         }
+
         robot.reset();
     }
 }

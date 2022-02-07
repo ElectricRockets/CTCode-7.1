@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.arcrobotics.ftclib.command.InstantCommand;
-import com.arcrobotics.ftclib.command.button.Trigger;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -14,14 +13,12 @@ import org.firstinspires.ftc.teamcode.commands.SetSmartIntakePower;
 import org.firstinspires.ftc.teamcode.commands.ToggleHopper;
 import org.firstinspires.ftc.teamcode.commands.ToggleTSEArm;
 import org.firstinspires.ftc.teamcode.commands.ToggleTSEClaw;
-import org.firstinspires.ftc.teamcode.constants.RobotConstants;
 import org.firstinspires.ftc.teamcode.subsystem.FFRobot;
 import org.firstinspires.ftc.teamcode.subsystem.LiftSubsystem;
 
 @TeleOp
 public class DriverControlDel extends LinearOpMode {
 
-    private double lastLoopTime = System.nanoTime() * Math.pow(10, -6);
     private GamepadEx mainGamepad;
     FFRobot robot;
 
