@@ -79,7 +79,7 @@ public class LiftSubsystem extends SubsystemBase {
         lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lift.setDirection(DcMotorSimple.Direction.REVERSE);
         //liftPIDF =  new PIDFController(lift::getCurrentPosition, this::liftTarget, 0.006,0,-0.0002, 1,() -> 0,() -> 0.005,0,-0.65,0.6);
-        liftPIDF =  new PIDFController(this::getLiftPosition, this::liftTarget, 0.022,0,-0.01, 15,() -> 0,() -> 0.23,0,-0.38,1);
+        liftPIDF =  new PIDFController(this::getLiftPosition, this::liftTarget, 0.01,0,0, 15,() -> 0,() -> 0.1,0,-0.7,1);
     }
 
     public void periodic() {
@@ -88,7 +88,7 @@ public class LiftSubsystem extends SubsystemBase {
 
         if (state != states.HOMING) {
             //the lift motor is set to a new power based off of the pidf controller.
-            lift.setPower(liftPIDF.getUpdate());
+            lift.setPower(-liftPIDF.getUpdate());
         } else {
             lift.setPower(-0.2);
         }
@@ -135,6 +135,7 @@ public class LiftSubsystem extends SubsystemBase {
                 telemetry.addData("colorSensorLight", hopperColor.getLightDetected());
                 telemetry.addData("colorSensorRawLight", hopperColor.getRawLightDetected());
                 telemetry.addData("colorSensorDistanceMM", hopperColor.getDistance(DistanceUnit.MM));
+                telemetry.addData("liftSpeed", lift.getVelocity());
             }
         }
     }

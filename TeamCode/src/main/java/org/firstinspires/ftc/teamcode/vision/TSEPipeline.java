@@ -95,12 +95,21 @@ public class TSEPipeline extends OpenCvPipeline
 
         //creates a display version of the image that shows what is recognised
         input.copyTo(viewMat);
-        /*Core.bitwise_not(input, viewMat, workingMatrix);
+        Core.bitwise_not(input, viewMat, workingMatrix);
 
         Imgproc.rectangle(viewMat, new Rect(leftMatrixX,leftMatrixY,leftMatrixW,leftMatrixH), new Scalar(255,0,0));
         Imgproc.rectangle(viewMat, new Rect(middleMatrixX,middleMatrixY,middleMatrixW, middleMatrixH), new Scalar(255,0,0));
         Imgproc.rectangle(viewMat, new Rect(rightMatrixX,rightMatrixY,rightMatrixW, rightMatrixH), new Scalar(255,0,0));
-*/
+
+        leftMat.release();
+        rightMat.release();
+        midMat.release();
+        input.release();
+        workingMatrix.release();
+        lowH.release();
+        highH.release();
+
+
         return viewMat;
     }
 

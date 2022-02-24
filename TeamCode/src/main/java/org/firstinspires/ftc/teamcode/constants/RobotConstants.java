@@ -8,10 +8,10 @@ public class RobotConstants {
     public static double HOPPER_OPEN_POSITION = 0.21;
     public static double HOPPER_BARELY_OPEN_POSITION = 0.205;
     public static int LIFT_INTAKE = 0;
-    public static int LIFT_LOW = 20;
-    public static int LIFT_SHARED = 170;
-    public static int LIFT_MID = 300;
-    public static int LIFT_HIGH = 605;
+    public static int LIFT_LOW = 50;
+    public static int LIFT_SHARED = 500;
+    public static int LIFT_MID = 800;
+    public static int LIFT_HIGH = 1615;
     public static double LEFT_ARM_INTAKE = 0.92;
     public static double LEFT_ARM_SCORE = 0.106;
     public static double RIGHT_ARM_INTAKE = 0.03;
@@ -37,7 +37,7 @@ public class RobotConstants {
     public static double UNIVERSAL_DELIVERY_ACCEL = 0.2;
     public static double UNIVERSAL_DELIVERY_MAX_SPEED = 0.3;
 
-    public static double INTAKE_RAMP_LOW = 0.77;
+    public static double INTAKE_RAMP_LOW = 0.78;
     public static double INTAKE_RAMP_HIGH = 0.91;
     public static double INTAKE_POWER_DEFAULT = 1;
     public static double EXTAKE_POWER_DEFAULT = -0.5;
@@ -53,11 +53,11 @@ public class RobotConstants {
     public static double SLOW_SPEED = 0.4;
     public static double NORMAL_SPEED = 1;
 
-    public static boolean GENERATE_TELEMETRY = false;
-    public static boolean GENERATE_SLOWING_TELEMETRY = false;
+    public static boolean GENERATE_TELEMETRY = true;
+    public static boolean GENERATE_SLOWING_TELEMETRY = true;
 
     public static double WAIT_BETWEEN_MOVEMENTS = 0.5;
-    public static double WAIT_AFTER_FREIGHT_REGISTER = 0.3;
+    public static double WAIT_AFTER_FREIGHT_REGISTER = 0.15;
     public static double LEAVING_HUB_DIST_OFFSET = 2;
     public static double FREIGHT_THRESHOLD = 200;
     public static int RUMBLE_DURATION = 200;

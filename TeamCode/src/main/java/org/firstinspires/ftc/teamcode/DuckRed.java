@@ -1,17 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.commands.ScoreDuck;
 import org.firstinspires.ftc.teamcode.commands.TrajectorySequenceFollower;
+import org.firstinspires.ftc.teamcode.constants.AutoTrajectories;
 import org.firstinspires.ftc.teamcode.constants.RedConstants;
-import org.firstinspires.ftc.teamcode.constants.RobotConstants;
 import org.firstinspires.ftc.teamcode.subsystem.CameraSubsystem;
 import org.firstinspires.ftc.teamcode.subsystem.FFRobot;
-import org.firstinspires.ftc.teamcode.subsystem.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystem.LiftSubsystem;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
@@ -23,18 +20,21 @@ public class DuckRed extends LinearOpMode {
     FFRobot robot;
 
     //sets up trajectories that will be generated in initialization
-    private TrajectorySequence leftBarcode;
-    private TrajectorySequence midBarcode;
-    private TrajectorySequence rightBarcode;
-    private TrajectorySequence scoreDuck;
+    private TrajectorySequence leftBarcode, midBarcode, rightBarcode, scoreDuck;
 
     public void initialize() {
         //sets up the robot for autonomous
-        robot = new FFRobot(hardwareMap, telemetry);
+        robot = new FFRobot(this);
         robot.initAuto(RedConstants.DUCK_START);
 
         //generates all the trajectories that could be needed in order to reduce on-the-fly computation.
-        leftBarcode = robot.drive.trajectorySequenceBuilder(RedConstants.DUCK_START)
+        leftBarcode = AutoTrajectories.startToHub(robot, RedConstants.DUCK_START, RedConstants.DUCK_TSELEFT, RedConstants.DUCK_DEPOSIT_REVERSED, LiftSubsystem.states.SCORE_LOW_CLOSED);
+        midBarcode = AutoTrajectories.startToHub(robot, RedConstants.DUCK_START, RedConstants.DUCK_TSEMID, RedConstants.DUCK_DEPOSIT_REVERSED, LiftSubsystem.states.SCORE_MID_CLOSED);
+        rightBarcode = AutoTrajectories.startToHub(robot, RedConstants.DUCK_START, RedConstants.DUCK_TSERIGHT, RedConstants.DUCK_DEPOSIT_REVERSED, LiftSubsystem.states.SCORE_HIGH_CLOSED);
+
+        scoreDuck = AutoTrajectories.scoreDuck(robot, leftBarcode.end(), RedConstants.CAROUSEL, RedConstants.DUCKINTAKESTART, RedConstants.DUCKINTAKEEND, RedConstants.DUCK_DEPOSIT, RedConstants.DEPOT_PARK);
+        
+        /*leftBarcode = robot.drive.trajectorySequenceBuilder(RedConstants.DUCK_START)
                 .setReversed(true)
                 .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule( new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.GRAB_TSE_OPEN_INTAKE_CLOSED))))
                 .splineTo(RedConstants.DUCK_TSELEFT.vec(), RedConstants.DUCK_TSELEFT.getHeading())
@@ -85,7 +85,7 @@ public class DuckRed extends LinearOpMode {
                 .waitSeconds(RobotConstants.WAIT_BETWEEN_MOVEMENTS)
                 .splineTo( RedConstants.DEPOT_PARK.vec(), RedConstants.DEPOT_PARK.getHeading())
                 .UNSTABLE_addTemporalMarkerOffset(0.5, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.INTAKE))))
-                .build();
+                .build();*/
     }
 
     @Override
@@ -94,7 +94,7 @@ public class DuckRed extends LinearOpMode {
         initialize();
 
         //waits until start and displays telemetry
-        robot.waitForStart(this::isStarted);
+        robot.waitForStartAuto();
 
         //chooses the correct trajectory based off of the randomization result
         TrajectorySequence firstSequence;
@@ -117,9 +117,7 @@ public class DuckRed extends LinearOpMode {
                 new TrajectorySequenceFollower(robot.drive, scoreDuck)
         ));
 
-        while (!isStopRequested() && opModeIsActive()) {
-            robot.run();
-        }
+        robot.loop();
 
         robot.reset();
     }

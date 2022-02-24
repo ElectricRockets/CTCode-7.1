@@ -50,7 +50,7 @@ public class ScoreDuck extends CommandBase {
 
     public void initialize() {
         startTime = System.nanoTime() * Math.pow(10,-9);
-        DuckSubsystem.spinBlue(0);
+        DuckSubsystem.setPower(0);
     }
 
     public void execute() {
@@ -65,6 +65,6 @@ public class ScoreDuck extends CommandBase {
     }
 
     public void end(boolean interrupted) {
-        DuckSubsystem.spinBlue(0);
+        DuckSubsystem.setPower(0);
     }
 }

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystem;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.arcrobotics.ftclib.command.Robot;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 
@@ -11,10 +12,9 @@ import org.firstinspires.ftc.teamcode.constants.PoseStorage;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.vision.TSEPipeline;
 
-import java.util.function.BooleanSupplier;
-
 public class FFRobot extends Robot{
 
+    private final LinearOpMode opMode;
     public final LynxModuleSubsystem lynxModuleSubsystem;
     public final IntakeSubsystem intakeSubsystem;
     public final LiftSubsystem liftSubsystem;
@@ -25,8 +25,9 @@ public class FFRobot extends Robot{
     private final Telemetry telemetry;
     public double startTime = 0;
 
-    public FFRobot(HardwareMap hardwareMap, Telemetry telemetry, boolean isFieldCentric) {
+    public FFRobot(HardwareMap hardwareMap, Telemetry telemetry, LinearOpMode opMode, boolean isFieldCentric) {
         this.telemetry = telemetry;
+        this.opMode = opMode;
 
         //tells the user that the program has begun initialization
         telemetry.addLine("Robot Initializing");
@@ -39,13 +40,17 @@ public class FFRobot extends Robot{
         intakeSubsystem = new IntakeSubsystem(hardwareMap, liftSubsystem::intakeAllowed, liftSubsystem::autoExtakeAllowed);
         duckSubsystem = new DuckSubsystem(hardwareMap);
         drive = new MecanumDriveSubsystem(new SampleMecanumDrive(hardwareMap),telemetry, isFieldCentric);
-        odometrySubsystem = new OdometrySubsystem(hardwareMap, drive);
+        odometrySubsystem = new OdometrySubsystem(hardwareMap, telemetry, drive);
 
         //drive.setLocalizer(FFRobotLocalizer.get(hardwareMap, telemetry));
     }
 
-    public FFRobot(HardwareMap hardwareMap, Telemetry telemetry) {
-        this(hardwareMap, telemetry, false);
+    public FFRobot(LinearOpMode opMode) {
+        this(opMode.hardwareMap, opMode.telemetry,opMode, false);
+    }
+
+    public FFRobot(LinearOpMode opMode, boolean isFieldCentric) {
+        this(opMode.hardwareMap, opMode.telemetry,opMode, isFieldCentric);
     }
 
     public void initTele() {
@@ -66,35 +71,47 @@ public class FFRobot extends Robot{
         intakeSubsystem.setState(IntakeSubsystem.states.RETRACTED);
         //odometrySubsystem.setState(OdometrySubsystem.states.DEPLOYED);
         cameraSubsystem.initCamera();
-        liftSubsystem.setState(LiftSubsystem.states.INTAKE_CLOSED);
+        liftSubsystem.setState(LiftSubsystem.states.INTAKE_CLOSED_TSE_HIGH);
 
         //tells the user that the program has begun generating the trajectories for autonomous
         telemetry.addLine("Robot Generating Trajectories");
         telemetry.update();
     }
 
-    public void waitForStart( BooleanSupplier started) {
+    public void waitForStartAuto() {
         startTime = System.nanoTime() * Math.pow(10,-9);
 
-        while (!started.getAsBoolean() || (System.nanoTime() * Math.pow(10,-9) < startTime + 5 && cameraSubsystem.getResult() == null)) {
+        while (!opMode.isStarted() || (System.nanoTime() * Math.pow(10,-9) < startTime + 5 && cameraSubsystem.getResult() == null)) {
 
-            if (started.getAsBoolean()) {
+            if (opMode.isStarted()) {
                 startTime = System.nanoTime() * Math.pow(10,-9);
             }
 
             if (cameraSubsystem.getResult() == null) {
                 telemetry.addLine("Robot Vision Initializing");
-                telemetry.update();
             } else {
                 telemetry.addLine("Robot Ready");
                 telemetry.addData("Randomization", cameraSubsystem.getResult());
-                telemetry.update();
             }
+            telemetry.update();
         }
 
         //if no detection has occurred after timeout, the Right position is chosen as a default.
         if (cameraSubsystem.getResult() == null) {
             cameraSubsystem.TSEPipeline.lastResult = TSEPipeline.tsePositions.RIGHT;
+        }
+    }
+
+    public void waitForStartTele() {
+        while (!opMode.isStarted()) {
+            telemetry.addLine("Robot Ready");
+            telemetry.update();
+        }
+    }
+
+    public void loop() {
+        while (!opMode.isStopRequested() && opMode.opModeIsActive()) {
+            run();
         }
     }
 

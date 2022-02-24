@@ -1,17 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.commands.ScoreDuck;
 import org.firstinspires.ftc.teamcode.commands.TrajectorySequenceFollower;
+import org.firstinspires.ftc.teamcode.constants.AutoTrajectories;
 import org.firstinspires.ftc.teamcode.constants.BlueConstants;
-import org.firstinspires.ftc.teamcode.constants.RobotConstants;
 import org.firstinspires.ftc.teamcode.subsystem.CameraSubsystem;
 import org.firstinspires.ftc.teamcode.subsystem.FFRobot;
-import org.firstinspires.ftc.teamcode.subsystem.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystem.LiftSubsystem;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
@@ -23,18 +20,22 @@ public class DuckBlue extends LinearOpMode {
     FFRobot robot;
 
     //sets up trajectories that will be generated in initialization
-    private TrajectorySequence leftBarcode;
-    private TrajectorySequence midBarcode;
-    private TrajectorySequence rightBarcode;
-    private TrajectorySequence scoreDuck;
+    private TrajectorySequence leftBarcode, midBarcode, rightBarcode, scoreDuck;
 
     public void initialize() {
         //sets up the robot for autonomous
-        robot = new FFRobot(hardwareMap, telemetry);
+        robot = new FFRobot(this);
         robot.initAuto(BlueConstants.DUCK_START);
 
         //generates all the trajectories that could be needed in order to reduce on-the-fly computation.
-        leftBarcode = robot.drive.trajectorySequenceBuilder(BlueConstants.DUCK_START)
+        leftBarcode = AutoTrajectories.startToHub(robot, BlueConstants.DUCK_START, BlueConstants.DUCK_TSELEFT, BlueConstants.DUCK_DEPOSIT_REVERSED, LiftSubsystem.states.SCORE_LOW_CLOSED);
+        midBarcode = AutoTrajectories.startToHub(robot, BlueConstants.DUCK_START, BlueConstants.DUCK_TSEMID, BlueConstants.DUCK_DEPOSIT_REVERSED, LiftSubsystem.states.SCORE_MID_CLOSED);
+        rightBarcode = AutoTrajectories.startToHub(robot, BlueConstants.DUCK_START, BlueConstants.DUCK_TSERIGHT, BlueConstants.DUCK_DEPOSIT_REVERSED, LiftSubsystem.states.SCORE_HIGH_CLOSED);
+
+        scoreDuck = AutoTrajectories.scoreDuck(robot, leftBarcode.end(), BlueConstants.CAROUSEL, BlueConstants.DUCKINTAKESTART, BlueConstants.DUCKINTAKEEND, BlueConstants.DUCK_DEPOSIT, BlueConstants.DEPOT_PARK);
+
+
+        /*leftBarcode = robot.drive.trajectorySequenceBuilder(BlueConstants.DUCK_START)
                 .setReversed(true)
                 .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule( new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.GRAB_TSE_OPEN_INTAKE_CLOSED))))
                 .splineTo(BlueConstants.DUCK_TSELEFT.vec(), BlueConstants.DUCK_TSELEFT.getHeading())
@@ -85,7 +86,7 @@ public class DuckBlue extends LinearOpMode {
                 .waitSeconds(RobotConstants.WAIT_BETWEEN_MOVEMENTS)
                 .splineTo( BlueConstants.DEPOT_PARK.vec(), BlueConstants.DEPOT_PARK.getHeading())
                 .UNSTABLE_addTemporalMarkerOffset(0.5, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.INTAKE))))
-                .build();
+                .build();*/
     }
 
     @Override
@@ -94,7 +95,7 @@ public class DuckBlue extends LinearOpMode {
         initialize();
 
         //waits until start and displays telemetry
-        robot.waitForStart(this::isStarted);
+        robot.waitForStartAuto();
 
         //chooses the correct trajectory based off of the randomization result
         TrajectorySequence firstSequence;
@@ -117,9 +118,7 @@ public class DuckBlue extends LinearOpMode {
                 new TrajectorySequenceFollower(robot.drive, scoreDuck)
         ));
 
-        while (!isStopRequested() && opModeIsActive()) {
-            robot.run();
-        }
+        robot.loop();
 
         robot.reset();
     }

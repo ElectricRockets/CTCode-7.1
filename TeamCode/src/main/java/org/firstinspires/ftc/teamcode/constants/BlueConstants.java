@@ -27,6 +27,7 @@ public class BlueConstants {
 
     public static Pose2d DUCK_START = new Pose2d(-41, 62, toRadians(90));
     public static Pose2d DUCK_DEPOSIT = new Pose2d(-27, 25, toRadians(0));
+    public static Pose2d DUCK_DEPOSIT_REVERSED = new Pose2d(DUCK_DEPOSIT.getX(), DUCK_DEPOSIT.getY(), DUCK_DEPOSIT.getHeading() + toRadians(180));
     public static Pose2d DUCK_TSELEFT = new Pose2d(-36, 45, toRadians(-41));
     public static Pose2d DUCK_TSEMID = new Pose2d(-36, 49, toRadians(-90));
     public static Pose2d DUCK_TSERIGHT = new Pose2d(-36, 45, toRadians(-139));

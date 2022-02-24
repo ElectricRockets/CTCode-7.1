@@ -23,8 +23,9 @@ public class IncrementLiftV2 extends CommandBase {
             case GRAB_TSE_OPEN_INTAKE_CLOSED:
             case GRAB_TSE_CLOSED_INTAKE_CLOSED:
             case INTAKE_CLOSED:
-                liftSubsystem.setState(LiftSubsystem.states.SCORE_SHARED_CLOSED);
+                liftSubsystem.setState(LiftSubsystem.states.SCORE_MID_CLOSED);
                 break;
+            case SCORE_MID_CLOSED:
             case SCORE_SHARED_CLOSED:
                 liftSubsystem.setState(LiftSubsystem.states.SCORE_HIGH_CLOSED);
                 break;
@@ -37,8 +38,9 @@ public class IncrementLiftV2 extends CommandBase {
             case SCORE_TSE_OPEN_HOPPER_CLOSED:
                 liftSubsystem.setState(LiftSubsystem.states.SCORE_TSE_OPEN_HOPPER_OPEN);
                 break;
-            case SCORE_HIGH_OPEN:
             case SCORE_SHARED_OPEN:
+            case SCORE_HIGH_OPEN:
+            case SCORE_MID_OPEN:
             case SCORE_TSE_OPEN_HOPPER_OPEN:
                 liftSubsystem.setState(LiftSubsystem.states.INTAKE);
                 break;
