@@ -33,8 +33,10 @@ public class LiftSubsystem extends SubsystemBase {
     private final Telemetry telemetry;
     public enum states {
         INTAKE,
+        REPOSITION_SAFELY,
         INTAKE_CLOSED,
         INTAKE_CLOSED_TSE_HIGH,
+        INTAKE_CLOSED_TSE_HIGH_OPEN,
         INTAKE_TSE_HIGH,
         SCORE_LOW_CLOSED,
         SCORE_SHARED_CLOSED,
@@ -153,6 +155,15 @@ public class LiftSubsystem extends SubsystemBase {
                 tseClaw.setPosition(RobotConstants.TSE_CLAW_CLOSED);
                 break;
 
+            case REPOSITION_SAFELY:
+                liftTargetPosition = RobotConstants.LIFT_LOW;
+                leftArm.setPosition(RobotConstants.LEFT_ARM_INTAKE);
+                rightArm.setPosition(RobotConstants.RIGHT_ARM_INTAKE);
+                hopperClaw.setPosition(RobotConstants.HOPPER_OPEN_POSITION);
+                tseArm.setPosition(RobotConstants.TSE_ARM_STORE_FRONT);
+                tseClaw.setPosition(RobotConstants.TSE_CLAW_CLOSED);
+                break;
+
             case INTAKE_CLOSED:
                 liftTargetPosition = RobotConstants.LIFT_INTAKE;
                 leftArm.setPosition(RobotConstants.LEFT_ARM_INTAKE);
@@ -178,6 +189,15 @@ public class LiftSubsystem extends SubsystemBase {
                 hopperClaw.setPosition(RobotConstants.HOPPER_CLOSED_POSITION);
                 tseArm.setPosition(RobotConstants.TSE_ARM_STORE_MID);
                 tseClaw.setPosition(RobotConstants.TSE_CLAW_CLOSED);
+                break;
+
+            case INTAKE_CLOSED_TSE_HIGH_OPEN:
+                liftTargetPosition = RobotConstants.LIFT_INTAKE;
+                leftArm.setPosition(RobotConstants.LEFT_ARM_INTAKE);
+                rightArm.setPosition(RobotConstants.RIGHT_ARM_INTAKE);
+                hopperClaw.setPosition(RobotConstants.HOPPER_CLOSED_POSITION);
+                tseArm.setPosition(RobotConstants.TSE_ARM_STORE_MID);
+                tseClaw.setPosition(RobotConstants.TSE_CLAW_OPEN);
                 break;
 
             case SCORE_LOW_CLOSED:

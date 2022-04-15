@@ -71,7 +71,7 @@ public class FFRobot extends Robot{
         intakeSubsystem.setState(IntakeSubsystem.states.RETRACTED);
         //odometrySubsystem.setState(OdometrySubsystem.states.DEPLOYED);
         cameraSubsystem.initCamera();
-        liftSubsystem.setState(LiftSubsystem.states.INTAKE_CLOSED_TSE_HIGH);
+        liftSubsystem.setState(LiftSubsystem.states.INTAKE_CLOSED_TSE_HIGH_OPEN);
 
         //tells the user that the program has begun generating the trajectories for autonomous
         telemetry.addLine("Robot Generating Trajectories");

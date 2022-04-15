@@ -8,6 +8,7 @@ import com.arcrobotics.ftclib.command.InstantCommand;
 
 import org.firstinspires.ftc.teamcode.commands.ScoreDuck;
 import org.firstinspires.ftc.teamcode.commands.ToggleHopper;
+import org.firstinspires.ftc.teamcode.subsystem.DuckSubsystem;
 import org.firstinspires.ftc.teamcode.subsystem.FFRobot;
 import org.firstinspires.ftc.teamcode.subsystem.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystem.LiftSubsystem;
@@ -28,11 +29,15 @@ public class AutoTrajectories {
                 .build();
     }
 
-    public static TrajectorySequence cycle(FFRobot robot, Pose2d startPose, Pose2d gapOutside, Pose2d gapInside, Pose2d IW1, Vector2d IW2, Vector2d collectOffset, double collectMultiplier, double depositOffsetMultiplier, Pose2d deposit, Vector2d depositOffset) {
+    public static TrajectorySequence cycle(FFRobot robot, Pose2d startPose, Pose2d gapOutside, Pose2d gapInside, Pose2d IW1, Pose2d IW2, Pose2d collectOffset, double collectMultiplier, double depositOffsetMultiplier, Pose2d deposit, Vector2d depositOffset) {
         return robot.drive.trajectorySequenceBuilder(startPose)
                 .setReversed(false)
                 .UNSTABLE_addDisplacementMarkerOffset(
                         RobotConstants.LEAVING_HUB_DIST_OFFSET,
+                        () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_MID_OPEN)))
+                )
+                .UNSTABLE_addDisplacementMarkerOffset(
+                        RobotConstants.LEAVING_HUB_DIST_OFFSET+6,
                         () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.INTAKE)))
                 )
                 .splineTo(gapOutside.vec(), gapOutside.getHeading())
@@ -41,14 +46,15 @@ public class AutoTrajectories {
                         () -> robot.schedule(new InstantCommand(() -> robot.intakeSubsystem.setState(IntakeSubsystem.states.SMART_INTAKE)))
                 )
                 .splineTo(gapInside.vec(), gapInside.getHeading())
-                .splineToSplineHeading(IW1, 0)
-                .lineToConstantHeading(IW2.plus(collectOffset.times(collectMultiplier)))
+                .splineToSplineHeading(IW1.plus(collectOffset.times(collectMultiplier)), IW1.getHeading())
+                .lineToConstantHeading(IW2.vec().plus(collectOffset.vec().times(collectMultiplier)))
                 .setTangent(toRadians(180))
-                .lineToConstantHeading(IW1.vec())
+                //.splineTo(gapInside.vec(), gapInside.getHeading())
                 .UNSTABLE_addDisplacementMarkerOffset(
                         0,
                         () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.INTAKE_CLOSED)))
                 )
+                .lineToConstantHeading(IW1.vec().plus(collectOffset.vec().times(collectMultiplier)))
                 .splineToSplineHeading(gapInside, gapInside.getHeading() + toRadians(180))
                 .UNSTABLE_addTemporalMarkerOffset(
                         0,
@@ -79,18 +85,19 @@ public class AutoTrajectories {
                 .build();
     }
 
-    public static TrajectorySequence scoreDuck(FFRobot robot, Pose2d startPose, Pose2d carousel, Pose2d duckIntakeStart, Vector2d duckIntakeEnd, Pose2d duckDeposit, Pose2d depotPark) {
+    public static TrajectorySequence scoreDuck(FFRobot robot, Pose2d startPose, Pose2d carousel, ScoreDuck.fieldSides side, Pose2d duckIntakeStart, Vector2d duckIntakeEnd, Pose2d duckDeposit, Pose2d depotPark) {
         return robot.drive.trajectorySequenceBuilder(startPose)
                 .UNSTABLE_addDisplacementMarkerOffset(
                         RobotConstants.LEAVING_HUB_DIST_OFFSET,
                         () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.INTAKE_TSE_HIGH)))
                 )
-                .splineTo(carousel.vec(), carousel.getHeading())
+                .lineToSplineHeading(carousel)
                 .UNSTABLE_addTemporalMarkerOffset(
                         RobotConstants.WAIT_BETWEEN_MOVEMENTS,
-                        () -> robot.schedule( new ScoreDuck(robot.duckSubsystem, ScoreDuck.fieldSides.BLUE, ScoreDuck.scoreTypes.UNIVERSAL))
+                        () -> robot.schedule( new ScoreDuck(robot.duckSubsystem, side, ScoreDuck.scoreTypes.OUTSIDE))
                 )
                 .waitSeconds(RobotConstants.UNIVERSAL_DELIVERY_TIME + RobotConstants.WAIT_BETWEEN_MOVEMENTS * 2)
+                .setTangent(toRadians(-carousel.getHeading()))
                 .splineTo(duckIntakeStart.vec(), duckIntakeStart.getHeading())
                 .UNSTABLE_addTemporalMarkerOffset(
                         0,

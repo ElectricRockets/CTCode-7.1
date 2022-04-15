@@ -4,6 +4,7 @@ import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.commands.ScoreDuck;
 import org.firstinspires.ftc.teamcode.commands.TrajectorySequenceFollower;
 import org.firstinspires.ftc.teamcode.constants.AutoTrajectories;
 import org.firstinspires.ftc.teamcode.constants.BlueConstants;
@@ -32,61 +33,7 @@ public class DuckBlue extends LinearOpMode {
         midBarcode = AutoTrajectories.startToHub(robot, BlueConstants.DUCK_START, BlueConstants.DUCK_TSEMID, BlueConstants.DUCK_DEPOSIT_REVERSED, LiftSubsystem.states.SCORE_MID_CLOSED);
         rightBarcode = AutoTrajectories.startToHub(robot, BlueConstants.DUCK_START, BlueConstants.DUCK_TSERIGHT, BlueConstants.DUCK_DEPOSIT_REVERSED, LiftSubsystem.states.SCORE_HIGH_CLOSED);
 
-        scoreDuck = AutoTrajectories.scoreDuck(robot, leftBarcode.end(), BlueConstants.CAROUSEL, BlueConstants.DUCKINTAKESTART, BlueConstants.DUCKINTAKEEND, BlueConstants.DUCK_DEPOSIT, BlueConstants.DEPOT_PARK);
-
-
-        /*leftBarcode = robot.drive.trajectorySequenceBuilder(BlueConstants.DUCK_START)
-                .setReversed(true)
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule( new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.GRAB_TSE_OPEN_INTAKE_CLOSED))))
-                .splineTo(BlueConstants.DUCK_TSELEFT.vec(), BlueConstants.DUCK_TSELEFT.getHeading())
-                .UNSTABLE_addTemporalMarkerOffset(0.2, () -> robot.schedule( new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.GRAB_TSE_CLOSED_INTAKE_CLOSED))))
-                .waitSeconds(RobotConstants.WAIT_BETWEEN_MOVEMENTS)
-                .UNSTABLE_addTemporalMarkerOffset(0.2, () -> robot.schedule( new InstantCommand( () -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_LOW_CLOSED))))
-                .splineTo(BlueConstants.DUCK_DEPOSIT.vec(), BlueConstants.DUCK_DEPOSIT.getHeading())
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_LOW_OPEN))))
-                .build();
-
-        midBarcode = robot.drive.trajectorySequenceBuilder(BlueConstants.DUCK_START)
-                .setReversed(true)
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule( new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.GRAB_TSE_OPEN_INTAKE_CLOSED))))
-                .splineTo(BlueConstants.DUCK_TSEMID.vec(), BlueConstants.DUCK_TSEMID.getHeading())
-                .UNSTABLE_addTemporalMarkerOffset(0.2, () -> robot.schedule( new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.GRAB_TSE_CLOSED_INTAKE_CLOSED))))
-                .waitSeconds(RobotConstants.WAIT_BETWEEN_MOVEMENTS)
-                .UNSTABLE_addTemporalMarkerOffset(0.2, () -> robot.schedule( new InstantCommand( () -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_MID_CLOSED))))
-                .splineTo(BlueConstants.DUCK_DEPOSIT.vec(), BlueConstants.DUCK_DEPOSIT.getHeading())
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_MID_OPEN))))
-                .build();
-
-        rightBarcode = robot.drive.trajectorySequenceBuilder(BlueConstants.DUCK_START)
-                .setReversed(true)
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule( new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.GRAB_TSE_OPEN_INTAKE_CLOSED))))
-                .splineTo(BlueConstants.DUCK_TSERIGHT.vec(), BlueConstants.DUCK_TSERIGHT.getHeading())
-                .UNSTABLE_addTemporalMarkerOffset(0.2, () -> robot.schedule( new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.GRAB_TSE_CLOSED_INTAKE_CLOSED))))
-                .waitSeconds(RobotConstants.WAIT_BETWEEN_MOVEMENTS)
-                .UNSTABLE_addTemporalMarkerOffset(0.2, () -> robot.schedule( new InstantCommand( () -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_HIGH_CLOSED))))
-                .splineTo(BlueConstants.DUCK_DEPOSIT.vec(), BlueConstants.DUCK_DEPOSIT.getHeading())
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_HIGH_OPEN))))
-                .build();
-
-        scoreDuck = robot.drive.trajectorySequenceBuilder(leftBarcode.end())
-                .UNSTABLE_addTemporalMarkerOffset(0.5, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.INTAKE_TSE_HIGH))))
-                .splineTo(BlueConstants.CAROUSEL.vec(), BlueConstants.CAROUSEL.getHeading())
-                .UNSTABLE_addTemporalMarkerOffset(RobotConstants.WAIT_BETWEEN_MOVEMENTS, () -> robot.schedule( new ScoreDuck(robot.duckSubsystem, ScoreDuck.fieldSides.BLUE, ScoreDuck.scoreTypes.UNIVERSAL)))
-                .waitSeconds(RobotConstants.UNIVERSAL_DELIVERY_TIME + RobotConstants.WAIT_BETWEEN_MOVEMENTS * 2)
-                .splineTo(BlueConstants.DUCKINTAKESTART.vec(), BlueConstants.DUCKINTAKESTART.getHeading())
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.intakeSubsystem.setState(IntakeSubsystem.states.SMART_INTAKE))))
-                .lineToConstantHeading(BlueConstants.DUCKINTAKEEND)
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule(new InstantCommand( () -> robot.liftSubsystem.setState(LiftSubsystem.states.INTAKE_CLOSED_TSE_HIGH))))
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.schedule(new InstantCommand(() -> robot.intakeSubsystem.setState(IntakeSubsystem.states.RETRACTED))))
-                .UNSTABLE_addTemporalMarkerOffset(0.3, () -> robot.schedule(new InstantCommand( () -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_HIGH_CLOSED))))
-                .setReversed(true)
-                .splineTo(BlueConstants.DUCK_DEPOSIT.vec(), BlueConstants.DUCK_DEPOSIT.getHeading())
-                .UNSTABLE_addTemporalMarkerOffset(0.3, () -> robot.schedule(new InstantCommand( () -> robot.liftSubsystem.setState(LiftSubsystem.states.SCORE_HIGH_OPEN))))
-                .setReversed(false)
-                .waitSeconds(RobotConstants.WAIT_BETWEEN_MOVEMENTS)
-                .splineTo( BlueConstants.DEPOT_PARK.vec(), BlueConstants.DEPOT_PARK.getHeading())
-                .UNSTABLE_addTemporalMarkerOffset(0.5, () -> robot.schedule(new InstantCommand(() -> robot.liftSubsystem.setState(LiftSubsystem.states.INTAKE))))
-                .build();*/
+        scoreDuck = AutoTrajectories.scoreDuck(robot, leftBarcode.end(), BlueConstants.CAROUSEL, ScoreDuck.fieldSides.BLUE, BlueConstants.DUCKINTAKESTART, BlueConstants.DUCKINTAKEEND, BlueConstants.DUCK_DEPOSIT, BlueConstants.DEPOT_PARK);
     }
 
     @Override

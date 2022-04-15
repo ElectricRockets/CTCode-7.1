@@ -31,8 +31,8 @@ public class RobotConstants {
     public static double INSIDE_DELIVERY_ACCEL = 0.7;
     public static double INSIDE_DELIVERY_MAX_SPEED = 1;
     public static double OUTSIDE_DELIVERY_TIME = 4;
-    public static double OUTSIDE_DELIVERY_ACCEL = 0.3;
-    public static double OUTSIDE_DELIVERY_MAX_SPEED = 0.3;
+    public static double OUTSIDE_DELIVERY_ACCEL = 0.2;
+    public static double OUTSIDE_DELIVERY_MAX_SPEED = 0.2;
     public static double UNIVERSAL_DELIVERY_TIME = 4;
     public static double UNIVERSAL_DELIVERY_ACCEL = 0.2;
     public static double UNIVERSAL_DELIVERY_MAX_SPEED = 0.3;
@@ -47,7 +47,8 @@ public class RobotConstants {
     public static double ODOMETRY_DEPLOY_WAIT = 0.5;
 
     public static double CAMERA_STORED = 1;
-    public static double CAMERA_TARGETING = 0.8;
+    public static double CAMERA_TARGETING_BLUE = 0.8;
+    public static double CAMERA_TARGETING_RED = 0.71;
 
     public static double ULTRA_SLOW_SPEED = 0.25;
     public static double SLOW_SPEED = 0.4;
@@ -58,7 +59,7 @@ public class RobotConstants {
 
     public static double WAIT_BETWEEN_MOVEMENTS = 0.5;
     public static double WAIT_AFTER_FREIGHT_REGISTER = 0.15;
-    public static double LEAVING_HUB_DIST_OFFSET = 2;
+    public static double LEAVING_HUB_DIST_OFFSET = 5;
     public static double FREIGHT_THRESHOLD = 200;
     public static int RUMBLE_DURATION = 200;
 

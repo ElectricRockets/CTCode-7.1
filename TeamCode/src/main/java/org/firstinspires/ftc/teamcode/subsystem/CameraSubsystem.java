@@ -25,7 +25,7 @@ public class CameraSubsystem extends SubsystemBase {
     public Vector2d rightCameraPosition = new Vector2d(-5.23, 3.83);
 
     public final TSEPipeline TSEPipeline;
-    public enum states {STORE, TARGETING}
+    public enum states {STORE, TARGETING_BLUE, TARGETING_RED}
     private states state;
     public OpenCvWebcam camera;
     private Telemetry telemetry;
@@ -61,7 +61,7 @@ public class CameraSubsystem extends SubsystemBase {
             }
         });
 
-        setState(states.TARGETING);
+        setState(states.TARGETING_BLUE);
     }
 
     public void stopStreaming() {
@@ -97,8 +97,11 @@ public class CameraSubsystem extends SubsystemBase {
             case STORE:
                 cameraServo.setPosition(RobotConstants.CAMERA_STORED);
                 break;
-            case TARGETING:
-                cameraServo.setPosition(RobotConstants.CAMERA_TARGETING);
+            case TARGETING_BLUE:
+                cameraServo.setPosition(RobotConstants.CAMERA_TARGETING_BLUE);
+                break;
+            case TARGETING_RED:
+                cameraServo.setPosition(RobotConstants.CAMERA_TARGETING_RED);
                 break;
         }
     }

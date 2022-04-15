@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -31,11 +32,11 @@ public class CycleRed3 extends LinearOpMode {
         midBarcode = AutoTrajectories.startToHub(robot, RedConstants.CYCLE_START, RedConstants.CYCLE_TSEMID, RedConstants.CYCLE_DEPOSIT_REVERSED, LiftSubsystem.states.SCORE_MID_CLOSED);
         rightBarcode = AutoTrajectories.startToHub(robot, RedConstants.CYCLE_START, RedConstants.CYCLE_TSERIGHT, RedConstants.CYCLE_DEPOSIT_REVERSED, LiftSubsystem.states.SCORE_HIGH_CLOSED);
 
-        scoreFreight1 = AutoTrajectories.cycle(robot, leftBarcode.end(), RedConstants.GAP, RedConstants.GAP_INSIDE, RedConstants.IW1, RedConstants.IW2, RedConstants.IW2_OFFSET,0,1, RedConstants.CYCLE_DEPOSIT, RedConstants.DEPOSIT_VARIANCE);
-        scoreFreight2 = AutoTrajectories.cycle(robot, scoreFreight1.end(), RedConstants.GAP, RedConstants.GAP_INSIDE, RedConstants.IW1, RedConstants.IW2, RedConstants.IW2_OFFSET,1,-1, RedConstants.CYCLE_DEPOSIT, RedConstants.DEPOSIT_VARIANCE);
-        scoreFreight3 = AutoTrajectories.cycle(robot, scoreFreight2.end(), RedConstants.GAP, RedConstants.GAP_INSIDE, RedConstants.IW1, RedConstants.IW2, RedConstants.IW2_OFFSET,2,1, RedConstants.CYCLE_DEPOSIT, RedConstants.DEPOSIT_VARIANCE);
+        scoreFreight1 = AutoTrajectories.cycle(robot, leftBarcode.end(), RedConstants.GAP, RedConstants.GAP_INSIDE, RedConstants.IW1, RedConstants.IW2, new Pose2d(0,0,0),0,1, RedConstants.CYCLE_DEPOSIT, RedConstants.DEPOSIT_VARIANCE);
+        scoreFreight2 = AutoTrajectories.cycle(robot, scoreFreight1.end(), RedConstants.GAP, RedConstants.GAP_INSIDE, RedConstants.IW1, RedConstants.IW2, new Pose2d(0,6,0),1,-1, RedConstants.CYCLE_DEPOSIT, RedConstants.DEPOSIT_VARIANCE);
+        scoreFreight3 = AutoTrajectories.cycle(robot, scoreFreight2.end(), RedConstants.GAP, RedConstants.GAP_INSIDE, RedConstants.IW1, RedConstants.IW2, new Pose2d(4,3,0),1,1, RedConstants.CYCLE_DEPOSIT, RedConstants.DEPOSIT_VARIANCE);
 
-        park = AutoTrajectories.warehousePark(robot, scoreFreight3.end(), RedConstants.GAP, RedConstants.GAP_INSIDE, RedConstants.WAREHOUSE_PARK);
+        park = AutoTrajectories.warehousePark(robot, scoreFreight2.end(), RedConstants.GAP, RedConstants.GAP_INSIDE, RedConstants.WAREHOUSE_PARK);
     }
 
     @Override
